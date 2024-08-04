@@ -1,280 +1,274 @@
-//Sun Aug 04 2024 05:47:14 GMT+0000 (Coordinated Universal Time)
+//Sun Aug 04 2024 06:22:29 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
-class Notification {
-  constructor() {
-    this.title = "";
-    this.content = "";
-    this._sendNotify = require("../sendNotify").sendNotify;
-    this._accountsArray = [];
-    this._messageSeparator = "";
-    this._messageMatchKeywords = [];
-    this._messageFilterKeywords = [];
-    this._messageClearKeywords = [];
-    this._showUserName = true;
-    this._userNameMasking = false;
-    this._nicknames = {};
-    this._prefixFormat = "";
-    this._defaultPrefixFormat = "【京东账号%】@：";
-    this._autoMergeType = "";
-    this._initConfig();
-  }
-  _initConfig() {
-    process.env.JD_NOTIFY_MATCH_KEYWORDS && (this._messageMatchKeywords = process.env.JD_NOTIFY_MATCH_KEYWORDS.split("@").map(_0x176f44 => _0x176f44.trim()).filter(Boolean));
-    process.env.JD_NOTIFY_FILTER_KEYWORDS && (this._messageFilterKeywords = process.env.JD_NOTIFY_FILTER_KEYWORDS.split("@").map(_0x347e7f => _0x347e7f.trim()).filter(Boolean));
-    process.env.JD_NOTIFY_CLEAR_KEYWORDS && (this._messageClearKeywords = process.env.JD_NOTIFY_CLEAR_KEYWORDS.split("|").filter(Boolean));
-    this._messageSeparator = process.env.JD_NOTIFY_SEPARATOR || process.env.JD_NOTIFY_DELIMITER || "，";
-    if (process.env.JD_NOTIFY_NICKNAMES) {
-      const _0x2b674f = process.env.JD_NOTIFY_NICKNAMES.split(",");
-      _0x2b674f.forEach(_0x423fb => {
-        let _0xa88d03 = _0x423fb.split("@");
-        _0xa88d03.length === 2 && _0xa88d03[0] && _0xa88d03[1] && (this._nicknames[_0xa88d03[0]] = _0xa88d03[1]);
-      });
-    }
-    this._showUserName = !(process.env.JD_NOTIFY_SHOW_USERNAME === "false");
-    this._userNameMasking = (process.env.JD_NOTIFY_USERNAME_MASKING || process.env.JD_NOTIFY_USERNAME_DESENSITIZATION) === "true";
-    this._prefixFormat = process.env.JD_NOTIFY_PREFIX_FORMAT || process.env.JD_NOTIFY_PREFIX_FORMATA || this._defaultPrefixFormat;
-    process.env.JD_NOTIFY_AUTO_MERGE_TYPE && (this._autoMergeType = process.env.JD_NOTIFY_AUTO_MERGE_TYPE);
-  }
-  config({
-    title: _0x19ab71,
-    content: _0x4e3ea4,
-    messageSeparator: _0x3a05ac
-  }) {
-    _0x19ab71 !== undefined && (this.title = _0x19ab71);
-    _0x4e3ea4 !== undefined && (this.content = _0x4e3ea4);
-    _0x3a05ac !== undefined && (this._messageSeparator = _0x3a05ac);
-  }
-  setTitle(_0x18f0b3) {
-    this.title = _0x18f0b3;
-  }
-  unsetTitle() {
-    this.title = "";
-  }
-  getTitle() {
-    return this.title;
-  }
-  setContent(_0x3b621a) {
-    this.content = _0x3b621a;
-  }
-  appendContent(_0x453517) {
-    this.content += _0x453517;
-  }
-  clearContent() {
-    this.content = "";
-  }
-  getContent() {
-    return this.content;
-  }
-  updateContent(_0x3152b6) {
-    this.content = _0x3152b6;
-  }
-  create(_0xe54139, _0x3827fa) {
-    const _0x478e29 = this._messageMatchKeywords,
-      _0x39c8c0 = this._messageFilterKeywords,
-      _0x477698 = this._messageClearKeywords,
-      _0xd87c95 = this._prefixFormat,
-      _0x54f7da = this._nicknames;
-    _0xe54139 === undefined && (_0xe54139 = "");
-    const _0x3e1efa = {
-      index: "" + _0xe54139,
-      userName: _0x3827fa,
-      fixed: false,
-      messages: [],
-      originMessages: [],
-      insert(_0x48de84) {
-        if (!_0x48de84) {
-          return;
-        }
-        if (_0x3e1efa.fixed) {
-          return;
-        }
-        _0x3e1efa.originMessages.push(_0x48de84.trim());
-        if (_0x478e29.length > 0 && !_0x478e29.some(_0x48adf3 => _0x48de84.includes(_0x48adf3))) {
-          return;
-        } else {
-          if (_0x39c8c0.length > 0 && _0x39c8c0.some(_0x459a5a => _0x48de84.includes(_0x459a5a))) {
-            return;
-          }
-        }
-        _0x477698.length > 0 && _0x477698.forEach(_0x55d659 => {
-          _0x48de84 = _0x48de84.replace(new RegExp(_0x55d659, "g"), "");
-        });
-        _0x3e1efa.messages.push(_0x48de84.trim());
-      },
-      fix(_0x508d23) {
-        if (!_0x508d23) {
-          return;
-        }
-        _0x3e1efa.fixed = true;
-        _0x3e1efa.originMessages = [_0x508d23.trim()];
-        if (_0x478e29.length > 0 && !_0x478e29.some(_0x150dc7 => _0x508d23.includes(_0x150dc7))) {
-          return;
-        } else {
-          if (_0x39c8c0.length > 0 && _0x39c8c0.some(_0x1ca76f => _0x508d23.includes(_0x1ca76f))) {
-            return;
-          }
-        }
-        _0x477698.length > 0 && _0x477698.forEach(_0x5c9b17 => {
-          _0x508d23 = _0x508d23.replace(new RegExp(_0x5c9b17, "g"), "");
-        });
-        _0x3e1efa.messages = [_0x508d23.trim()];
-      },
-      updateIndex(_0x72b83a) {
-        _0x3e1efa.index = "" + _0x72b83a;
-      },
-      updateUsername(_0x5cd5af) {
-        _0x3e1efa.userName = _0x5cd5af;
-      },
-      getInlineContent() {
-        let _0x5c61bf = this.originMessages.join(this._messageSeparator).trim();
-        this._autoMergeType && (_0x5c61bf = this._mergeMessages(_0x5c61bf, this._autoMergeType));
-        const _0x16affc = decodeURIComponent(_0x54f7da[this.userName] || this.userName),
-          _0xe414ea = _0xd87c95.replace(/%/g, this.index).replace(/@/g, _0x16affc);
-        return "" + _0xe414ea + (_0x5c61bf || "无");
+const path = require("path"),
+  common = require("./Rebels_jdCommon");
+let scriptName = null,
+  expireMinutes = 29;
+try {
+  expireMinutes = parseInt(process.env.JD_ISV_TOKEN_CACHE_EXPIRE_MINUTES || "29");
+} catch {}
+const defaultCacheTTL = expireMinutes * 60 * 1000,
+  TokenCache = new common.DataCache(process.env.JD_ISV_TOKEN_CUSTOM_CACHE || __dirname + "/token.json", defaultCacheTTL, 180000),
+  lzkjPinFilter = (process.env.JD_ISV_TOKEN_LZKJ_PIN_FILTER || "").split("@"),
+  lzkjPinFilter_interactsaas_and_interaction_v1 = (process.env.JD_ISV_TOKEN_LZKJ_INTERACTSAAS_AND_INTERACTION_V1_PIN_FILTER || process.env.JD_ISV_TOKEN_LZKJ_NEW_PIN_FILTER || process.env.JD_ISV_TOKEN_LZKJ_LOREAL_PIN_FILTER || "").split("@"),
+  lzkjPinFilter_interaction_v2 = (process.env.JD_ISV_TOKEN_LZKJ_INTERACTION_V2_PIN_FILTER || "").split("@"),
+  cjhyPinFilter = (process.env.JD_ISV_TOKEN_CJHY_PIN_FILTER || "").split("@");
+let requestAxiosProxyConfig, requestDynamicProxyConfig;
+try {
+  const proxyAddress = process.env.RS_ISV_TOKEN_PROXY_TUNNRL || process.env.JD_ISV_TOKEN_PROXY || "";
+  if (proxyAddress) {
+    const proxyConfig = common._getProxyConfigWithAddress(proxyAddress);
+    proxyConfig ? (requestAxiosProxyConfig = proxyConfig, console.log("\n===============启用 getToken 代理池代理(新)==============\n")) : console.log("❌ 提供的代理地址无效，跳过启用 getToken 代理池代理");
+  } else {
+    const proxyApi = process.env.RS_ISV_TOKEN_PROXY_API || process.env.JD_ISV_TOKEN_PROXY_API || "";
+    if (proxyApi) {
+      requestDynamicProxyConfig = {
+        api: null,
+        proxyConfig: null,
+        useLimit: null,
+        timeLimit: null,
+        fetchFailContinue: null,
+        extractTimestamp: null,
+        lastUseTimeStamp: null,
+        usedTimes: null
+      };
+      requestDynamicProxyConfig.api = proxyApi;
+      const useLimit = process.env.RS_ISV_TOKEN_PROXY_USE_LIMIT || process.env.JD_ISV_TOKEN_PROXY_API_MAX || "0";
+      try {
+        requestDynamicProxyConfig.useLimit = parseInt(useLimit);
+      } catch {
+        requestDynamicProxyConfig.useLimit = 1;
       }
-    };
-    this._accountsArray.push(_0x3e1efa);
-    return _0x3e1efa;
-  }
-  dispose(_0x55f401) {
-    this._accountsArray = this._accountsArray.filter(_0x169e93 => _0x169e93 !== _0x55f401);
-  }
-  disposeByUsername(_0xdc52c9) {
-    const _0x4e2e0f = this._accountsArray.find(_0x54ff48 => decodeURIComponent(_0x54ff48.userName) === decodeURIComponent(_0xdc52c9));
-    _0x4e2e0f && this.dispose(_0x4e2e0f);
-  }
-  disposeByIndex(_0x23fdf5) {
-    const _0x844313 = this._accountsArray.find(_0x400664 => _0x400664.index === "" + _0x23fdf5);
-    _0x844313 && this.dispose(_0x844313);
-  }
-  disposeAllMessage() {
-    this._accountsArray = [];
-  }
-  getMessage(_0x40691d = false) {
-    if (this._accountsArray.length === 0) {
-      return "";
-    }
-    this._formatAcountsMessage();
-    if (this._accountsArray.length === 0) {
-      return "";
-    }
-    let _0x1144d5 = [];
-    const _0x22f6d4 = this._userNameMasking,
-      _0x148c02 = this._showUserName,
-      _0xae1302 = !_0x148c02 && this._prefixFormat === this._defaultPrefixFormat ? this._prefixFormat.replace(/：$/, "") : this._prefixFormat;
-    for (const {
-      userName: _0x1fd323,
-      index: _0x5dade7,
-      messages: _0x1a4c27
-    } of this._accountsArray) {
-      let _0x1eaaae = "";
-      if (_0x148c02) {
-        const _0x43b74d = decodeURIComponent(this._nicknames[_0x1fd323] || _0x1fd323);
-        _0x22f6d4 && _0x40691d ? _0x1eaaae = this._desensitizingUserName(_0x43b74d) : _0x1eaaae = _0x43b74d;
+      const timeLimit = process.env.RS_ISV_TOKEN_PROXY_TIME_LIMIT || "10000";
+      try {
+        requestDynamicProxyConfig.timeLimit = parseInt(timeLimit);
+      } catch {
+        requestDynamicProxyConfig.timeLimit = 10000;
       }
-      const _0x4f2ccf = _0xae1302.replace(/%/g, _0x5dade7).replace(/@/g, _0x1eaaae),
-        _0x183452 = _0x1a4c27.join(this._messageSeparator).trim();
-      _0x1144d5.push("" + _0x4f2ccf + _0x183452);
+      requestDynamicProxyConfig.fetchFailContinue = (process.env.RS_ISV_TOKEN_PROXY_FETCH_FAIL_CONTINUE || "true") === "true";
+      console.log("\n================启用 getToken API代理(新)================\n");
     }
-    return _0x1144d5.join("\n").trim();
   }
-  reset() {
-    this.unsetTitle();
-    this.clearContent();
-    this.disposeAllMessage();
-  }
-  async send(_0x4a3bea, _0x14a277) {
-    await this._sendNotify(_0x4a3bea, _0x14a277);
-  }
-  async sendNotify(_0x2cd4aa, _0x3478a) {
-    await this.send(_0x2cd4aa, _0x3478a);
-  }
-  async push() {
-    let _0x475c98 = this.content.trim();
-    const _0x540ee6 = this.getMessage(true);
-    if (_0x540ee6) {
-      _0x475c98 = _0x540ee6.trim() + "\n\n" + _0x475c98;
-    }
-    await this.send(this.title, _0x475c98);
-  }
-  _mergeMessages(_0x506d09, _0x3e8e70) {
+  const globalProxy = process.env.RS_ISV_TOKEN_GLOBAL_PROXY === "true";
+  if (globalProxy) {
     try {
-      function _0x1b3a22(_0x469caf) {
-        const _0x3c6e8e = _0x469caf.match(/(\d+)(.+)/);
-        return _0x3c6e8e ? {
-          count: parseInt(_0x3c6e8e[1]),
-          name: _0x3c6e8e[2].trim()
-        } : {
-          count: null,
-          name: _0x469caf
-        };
-      }
-      function _0x13cef1(_0x1a8e3e, _0x11128a, _0x42df67) {
-        return _0x11128a !== null && _0x42df67.split("@").includes(_0x1a8e3e);
-      }
-      for (let _0x156165 = 0; _0x156165 < _0x506d09.length; _0x156165++) {
-        const {
-          count: _0x235a4b,
-          name: _0x10f10b
-        } = _0x1b3a22(_0x506d09[_0x156165]);
-        if (_0x13cef1(_0x10f10b, _0x235a4b, _0x3e8e70)) {
-          for (let _0x4460ec = _0x156165 + 1; _0x4460ec < _0x506d09.length; _0x4460ec++) {
-            const {
-              count: _0x342008,
-              name: _0x46e13d
-            } = _0x1b3a22(_0x506d09[_0x4460ec]);
-            _0x10f10b === _0x46e13d && (_0x506d09[_0x156165] = "" + (_0x235a4b + _0x342008) + _0x10f10b, _0x506d09.splice(_0x4460ec, 1), _0x4460ec--);
-          }
-        }
-      }
-      return _0x506d09;
-    } catch {
-      return _0x506d09;
+      require("global-agent/bootstrap");
+      console.log("\n===============启用 getToken 代理池代理(旧)==============\n");
+    } catch (_0x5d3b58) {
+      console.log("❌ getToken 代理模块加载失败 ➜ " + _0x5d3b58.message);
     }
   }
-  _desensitizingUserName(_0x512fb3) {
-    let _0x26106a = "";
-    if (_0x512fb3.length < 5) {
-      switch (_0x512fb3.length) {
-        case 1:
-          _0x26106a = _0x512fb3;
-          break;
-        case 2:
-          _0x26106a = _0x512fb3.slice(0, 1) + "*";
-          break;
-        case 3:
-          _0x26106a = _0x512fb3.slice(0, 1) + "*" + _0x512fb3.slice(-1);
-          break;
-        case 4:
-          _0x26106a = _0x512fb3.slice(0, 2) + "**";
-          break;
-      }
-    } else {
-      _0x26106a = _0x512fb3.slice(0, 2) + "*".repeat(_0x512fb3.length - 4) + _0x512fb3.slice(-2);
-    }
-    return _0x26106a;
+} catch {}
+const redisUrl = process.env.JD_ISV_TOKEN_REDIS_CACHE_URL || "",
+  redisKey = process.env.JD_ISV_TOKEN_REDIS_CACHE_KEY || "",
+  redisSubmit = !(process.env.JD_ISV_TOKEN_REDIS_CACHE_SUBMIT === "false"),
+  hasRedisKey = /<pt_pin>/.test(redisKey);
+let redisClient = null;
+if (redisUrl) {
+  let redis = null;
+  try {
+    redis = require("redis");
+  } catch (_0x4c863e) {
+    console.log("❌ getToken Redis模块加载失败 ➜ " + _0x4c863e.message);
   }
-  _formatAcountsMessage() {
-    let _0x49a7c5 = [];
-    for (let {
-      userName: _0x1b7cad,
-      index: _0x282e65,
-      messages: _0x401d57
-    } of this._accountsArray) {
-      _0x401d57 = _0x401d57.filter(_0x11ba94 => _0x11ba94 !== null && _0x11ba94 !== undefined && _0x11ba94 !== "");
-      const _0x28f557 = _0x49a7c5.find(_0x2a7086 => _0x2a7086.userName === _0x1b7cad);
-      _0x28f557 ? (_0x28f557.index === "" && (_0x28f557.index = _0x282e65), _0x401d57.length > 0 && _0x28f557.messages.push(..._0x401d57)) : _0x49a7c5.push({
-        userName: _0x1b7cad,
-        index: _0x282e65,
-        messages: _0x401d57
+  if (redis) {
+    try {
+      redisClient = redis.createClient({
+        url: redisUrl
       });
+    } catch (_0x33bb6c) {
+      console.log("❌ getToken Redis连接异常 ➜ " + (_0x33bb6c.message || _0x33bb6c));
     }
-    _0x49a7c5 = _0x49a7c5.filter(_0x24dcb1 => _0x24dcb1.messages.length > 0);
-    this._autoMergeType && _0x49a7c5.forEach(_0x12179d => {
-      _0x12179d.messages = this._mergeMessages(_0x12179d.messages, this._autoMergeType);
-    });
-    this._accountsArray = _0x49a7c5;
   }
 }
-module.exports = new Notification();
+async function _redisCacheGet(_0x44767a) {
+  const _0x473627 = encodeURIComponent(hasRedisKey ? redisKey.replace(/<pt_pin>/g, ptPin) : "" + redisKey + _0x44767a),
+    _0x132d9c = 3;
+  let _0xeaa6f6 = null;
+  for (let _0x376b6c = 0; _0x376b6c < _0x132d9c; _0x376b6c++) {
+    try {
+      await redisClient.connect();
+    } catch {}
+    try {
+      const _0x5267a9 = await redisClient.get(_0x473627);
+      if (_0x5267a9) {
+        return _0x5267a9;
+      }
+      _0xeaa6f6 = null;
+      break;
+    } catch (_0x2e1a17) {
+      _0xeaa6f6 = _0x2e1a17.message || _0x2e1a17;
+    }
+  }
+  if (_0xeaa6f6) {
+    console.log("🚫 getToken Redis缓存读取失败 ➜ " + _0xeaa6f6);
+  }
+  return "";
+}
+async function _redisCachePut(_0x55b9ab, _0xcd9c6b) {
+  const _0xa83899 = Math.floor((Date.now() + defaultCacheTTL) / 1000),
+    _0x27299f = encodeURIComponent(hasRedisKey ? redisKey.replace(/<pt_pin>/g, ptPin) : "" + redisKey + _0x55b9ab),
+    _0x277355 = _0xcd9c6b,
+    _0x4765bf = 3;
+  let _0x260ba1 = null;
+  for (let _0x504ca0 = 0; _0x504ca0 < _0x4765bf; _0x504ca0++) {
+    try {
+      await redisClient.connect();
+    } catch {}
+    try {
+      await redisClient.set(_0x27299f, _0x277355);
+      await redisClient.EXPIREAT(_0x27299f, _0xa83899);
+      _0x260ba1 = null;
+      break;
+    } catch (_0x1edb20) {
+      _0x260ba1 = _0x1edb20.message || _0x1edb20;
+    }
+  }
+  if (_0x260ba1) {
+    console.log("🚫 getToken Redis缓存写入失败 ➜ " + _0x260ba1);
+  }
+}
+async function _redisClientClose() {
+  try {
+    await redisClient.disconnect();
+  } catch (_0x56fd6c) {}
+}
+async function getToken(_0x1f149a, _0x3d4799, _0x1cfcd0 = true) {
+  let _0x3413fc = "";
+  try {
+    const _0x54d815 = decodeURIComponent(common.getCookieValue(_0x1f149a, "pt_pin"));
+    if (_0x54d815) {
+      if (!scriptName) {
+        const _0x315ca7 = require.main.filename;
+        scriptName = path.basename(_0x315ca7, ".js");
+      }
+      if (_0x1cfcd0) {
+        let _0x16ee3d = [];
+        if (_0x3d4799.includes("lzkj")) {
+          if (scriptName.startsWith("jd_lzkj_v2_")) {
+            _0x16ee3d = lzkjPinFilter_interaction_v2;
+          } else {
+            scriptName.startsWith("jd_lzkj_") ? _0x16ee3d = lzkjPinFilter_interactsaas_and_interaction_v1 : _0x16ee3d = lzkjPinFilter;
+          }
+        } else {
+          _0x3d4799.includes("cjhy") && (_0x16ee3d = cjhyPinFilter);
+        }
+        if (_0x16ee3d.length > 0 && (_0x16ee3d.includes(_0x54d815) || _0x16ee3d.includes(encodeURIComponent(_0x54d815)))) {
+          console.log("已设置跳过运行该账号（全局屏蔽）");
+          return "";
+        }
+        _0x3413fc = TokenCache.get(_0x54d815) || "";
+        if (_0x3413fc) {
+          return _0x3413fc;
+        }
+        if (redisClient) {
+          _0x3413fc = await _redisCacheGet(_0x54d815);
+          if (_0x3413fc) {
+            return _0x3413fc;
+          }
+        }
+      }
+    }
+    const _0x12673f = await common.getSign("isvObfuscator", {
+      url: _0x3d4799,
+      id: ""
+    });
+    if (!_0x12673f) {
+      console.log("🚫 getToken 签名获取失败");
+      return "";
+    }
+    let _0x8d99f3 = null,
+      _0x215132 = false;
+    if (requestAxiosProxyConfig || requestDynamicProxyConfig) {
+      if (requestAxiosProxyConfig) {
+        _0x8d99f3 = requestAxiosProxyConfig;
+      } else {
+        if (requestDynamicProxyConfig) {
+          if (requestDynamicProxyConfig.proxyConfig) {
+            _0x8d99f3 = requestDynamicProxyConfig.proxyConfig;
+            _0x215132 = true;
+          } else {
+            const _0x400de7 = await common.getProxyAddressWithApi(requestDynamicProxyConfig.api),
+              _0x506ae6 = common._getProxyConfigWithAddress(_0x400de7);
+            if (_0x506ae6) {
+              requestDynamicProxyConfig.extractTimestamp = Date.now();
+              requestDynamicProxyConfig.usedTimes = 0;
+              requestDynamicProxyConfig.proxyConfig = _0x506ae6;
+              _0x8d99f3 = _0x506ae6;
+              console.log("刷新Token代理IP：" + _0x506ae6.host + ":" + _0x506ae6.port);
+              _0x215132 = true;
+            } else {
+              if (!requestDynamicProxyConfig.fetchFailContinue) {
+                console.log("🚫 getToken 请求错误 ➜ 获取动态代理地址失败，已设置跳过请求");
+                return "";
+              }
+            }
+          }
+        }
+      }
+    }
+    const _0x53b58a = {
+        url: "https://api.m.jd.com/client.action?functionId=isvObfuscator",
+        method: "POST",
+        headers: {
+          Host: "api.m.jd.com",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": common.genUA(_0x54d815) || "JD4iPhone/167650 (iPhone; iOS 13.7; Scale/3.00)",
+          "Accept-Language": "zh-Hans-CN;q=1",
+          "Accept-Encoding": "gzip, deflate, br",
+          "J-E-H": common.getJEH(),
+          "J-E-C": common.getJEC(_0x54d815),
+          Cookie: _0x1f149a
+        },
+        proxy: _0x8d99f3,
+        data: _0x12673f,
+        timeout: 60000
+      },
+      _0x234d76 = 2;
+    let _0x4853e7 = 0,
+      _0x50c2f7 = null;
+    while (_0x4853e7 < _0x234d76) {
+      const _0x1f54d8 = await common.request(_0x53b58a);
+      if (_0x215132) {
+        requestDynamicProxyConfig.lastUseTimeStamp = Date.now();
+        requestDynamicProxyConfig.usedTimes++;
+        const _0x2255e8 = requestDynamicProxyConfig.useLimit > 0 && requestDynamicProxyConfig.usedTimes >= requestDynamicProxyConfig.useLimit,
+          _0x17e683 = requestDynamicProxyConfig.timeLimit > 0 && Date.now() - requestDynamicProxyConfig.extractTimestamp >= requestDynamicProxyConfig.timeLimit;
+        (_0x2255e8 || _0x17e683) && (requestDynamicProxyConfig.proxyConfig = null, requestDynamicProxyConfig.lastUseTimeStamp = null, requestDynamicProxyConfig.extractTimestamp = null, requestDynamicProxyConfig.usedTimes = 0);
+      }
+      if (!_0x1f54d8.success) {
+        _0x50c2f7 = "❌ getToken 请求失败 ➜ " + _0x1f54d8.error;
+        _0x4853e7++;
+        continue;
+      }
+      if (!_0x1f54d8.data) {
+        _0x50c2f7 = "🚫 getToken 请求失败 ➜ 无响应数据";
+        _0x4853e7++;
+        continue;
+      }
+      try {
+        const _0x5dd301 = _0x1f54d8.data;
+        if (_0x5dd301.code === "0") {
+          _0x3413fc = _0x5dd301.token;
+          TokenCache.put(_0x54d815, _0x3413fc, defaultCacheTTL);
+          redisClient && redisSubmit && (await _redisCachePut(_0x54d815, _0x3413fc));
+        } else {
+          _0x5dd301.code === "3" && _0x5dd301.errcode === 264 ? console.log("🚫 getToken 接口响应异常 ➜ 账号无效") : console.log("🚫 getToken 接口响应异常 ➜ " + JSON.stringify(_0x5dd301));
+        }
+      } catch (_0x5e0c60) {
+        console.log("🚫 getToken 在处理接口响应时遇到了错误 ➜ " + (_0x5e0c60.message || _0x5e0c60));
+      }
+      break;
+    }
+    _0x4853e7 >= _0x234d76 && console.log(_0x50c2f7);
+    return _0x3413fc;
+  } catch (_0x17c8fd) {
+    console.log("🚫 getToken 在处理请求时遇到了错误");
+    console.log(_0x17c8fd);
+    return _0x3413fc;
+  } finally {
+    redisClient && (await _redisClientClose());
+  }
+}
+module.exports = getToken;
