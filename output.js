@@ -1,92 +1,71 @@
-//Sun Aug 04 2024 05:06:51 GMT+0000 (Coordinated Universal Time)
+//Sun Aug 04 2024 05:45:09 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
-const i1l1ll = require("jsdom");
-let I1iIiI = null,
-  li1I1 = null;
-async function i1ilil(iIIl1l) {
-  return new Promise((i1III, Ii1iIi) => {
-    setTimeout(() => {
-      i1III(iIIl1l);
-    }, iIIl1l);
-  });
-}
-async function lilIii(iliIIl) {
-  const {
-    JSDOM: iliIIi
-  } = i1l1ll;
-  let ill11I = new i1l1ll.ResourceLoader({
-      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0) Gecko/20100101 Firefox/91.0",
-      "referrer": "https://msitepp-fm.jd.com/rest/priceprophone/priceProPhoneMenu"
-    }),
-    Iliiil = new i1l1ll.VirtualConsole(),
-    li1Il = {
-      "url": "https://msitepp-fm.jd.com/rest/priceprophone/priceProPhoneMenu",
-      "referrer": "https://msitepp-fm.jd.com/rest/priceprophone/priceProPhoneMenu",
-      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0) Gecko/20100101 Firefox/91.0",
-      "runScripts": "dangerously",
-      "resources": ill11I,
-      "includeNodeLocations": true,
-      "storageQuota": 10000000,
-      "pretendToBeVisual": true,
-      "virtualConsole": Iliiil
-    };
-  const li1Ii = new iliIIi("<body>\n    <script>\n        function Map(){this.elements=new Array();this.size=function(){return this.elements.length},this.isEmpty=function(){return(this.elements.length<1)},this.clear=function(){this.elements=new Array()},this.put=function(_key,_value){if(this.containsKey(_key)==true){if(this.containsValue(_value)){if(this.remove(_key)==true){this.elements.push({key:_key,value:_value})}}else{this.elements.push({key:_key,value:_value})}}else{this.elements.push({key:_key,value:_value})}},this.remove=function(_key){var bln=false;try{for(i=0;i<this.elements.length;i++){if(this.elements[i].key==_key){this.elements.splice(i,1);return true}}}catch(e){bln=false}return bln},this.get=function(_key){try{for(i=0;i<this.elements.length;i++){if(this.elements[i].key==_key){return this.elements[i].value}}}catch(e){return null}},this.element=function(_index){if(_index<0||_index>=this.elements.length){return null}return this.elements[_index]},this.containsKey=function(_key){var bln=false;try{for(i=0;i<this.elements.length;i++){if(this.elements[i].key==_key){bln=true}}}catch(e){bln=false}return bln},this.containsValue=function(_value){var bln=false;try{for(i=0;i<this.elements.length;i++){if(this.elements[i].value==_value){bln=true}}}catch(e){bln=false}return bln},this.keys=function(){var arr=new Array();for(i=0;i<this.elements.length;i++){arr.push(this.elements[i].key)}return arr},this.values=function(){var arr=new Array();for(i=0;i<this.elements.length;i++){arr.push(this.elements[i].value)}return arr}}\n    </script>\n    <script src=\"https://storage.360buyimg.com/webcontainer/js_security_" + (iliIIl.charAt(0) === "3" ? "v3_0.1.3" : "v3_0.1.8") + ".js\"></script>\n    <script src=\"https://fm-price-cdn.jd.com/priceportal-static/script/utilsV1_1.js\"></script>\n    </body>", li1Il);
-  await i1ilil(500);
-  switch (iliIIl.charAt(0)) {
-    case "3":
-      I1iIiI = li1Ii.window;
-      break;
-    case "4":
-      li1I1 = li1Ii.window;
-      break;
-  }
-}
-async function i1ill1(i1IIl, I1lll1, i1IIi = "3.1") {
-  i1IIi !== "3.1" && (i1IIi = "4.1");
-  switch (i1IIi.charAt(0)) {
-    case "3":
-      !I1iIiI && (await lilIii(i1IIi));
-      break;
-    case "4":
-      !li1I1 && (await lilIii(i1IIi));
-      break;
-  }
-  return new Promise(async i1illl => {
-    switch (i1IIi.charAt(0)) {
-      case "3":
-        if (typeof I1iIiI.signWaap === "function") {
-          const Iil1II = await I1iIiI.signWaap(i1IIl, I1lll1);
-          i1illl(Iil1II);
-        } else {
-          let iIIl1I = null;
-          iIIl1I = setInterval(async () => {
-            if (typeof I1iIiI.signWaap === "function") {
-              clearInterval(iIIl1I);
-              iIIl1I = null;
-              const I1iIli = await I1iIiI.signWaap(i1IIl, I1lll1);
-              i1illl(I1iIli);
-            }
-          }, 100);
-        }
-        break;
-      case "4":
-        if (typeof li1I1.signWaap === "function") {
-          const lI1Ill = await li1I1.signWaap(i1IIl, I1lll1);
-          i1illl(lI1Ill);
-        } else {
-          let lI1Ili = null;
-          lI1Ili = setInterval(async () => {
-            if (typeof li1I1.signWaap === "function") {
-              clearInterval(lI1Ili);
-              lI1Ili = null;
-              const IliilI = await li1I1.signWaap(i1IIl, I1lll1);
-              i1illl(IliilI);
-            }
-          }, 100);
-        }
-        break;
+const IiiIll = require("got");
+let IIlii = require("https-proxy-agent").HttpsProxyAgent,
+  IlI1il = process.env.RS_PROXY_API || "",
+  IilliI = process.env.RS_PROXY_TIMEOUT || 20000,
+  IlI1ii = 1,
+  lIIiii = "",
+  iI1lli = 0;
+async function ll1iI(IIli1I) {
+  if (!IIli1I) return;
+  const llIliI = await IiiIll.get(IIli1I, {
+    "timeout": {
+      "request": 30000
     }
+  }).catch(I1i111 => {
+    console.log(I1i111);
+  });
+  lIIiii = llIliI?.["body"] ? llIliI.body.replace("\n", "").replace(/^.*:\/\//, "") : "";
+  while_get_proxy();
+}
+ll1iI(IlI1il);
+while_get_proxy = async () => {
+  clearTimeout(iI1lli);
+  iI1lli = setTimeout(() => {
+    ll1iI(IlI1il);
+  }, IilliI);
+};
+async function iI1lll(l1lIli) {
+  return new Promise(lIIiiI => {
+    setTimeout(lIIiiI, l1lIli);
   });
 }
-module.exports = i1ill1;
+function l1lIll(II1lil, IIli1l, II1lii = false) {
+  return this.failnum = 0, ddd = async (IIll1, ll1il) => {
+    if (IlI1il && (this.failed || II1lii)) {
+      let ll1ll = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
+      this.ip = lIIiii;
+      if (ll1ll.test(this.ip) !== false) this.agent = this.ip ? new IIlii("http://" + this.ip) : undefined;
+      this.agent ? console.log("使用代理IP：" + this.ip) : "";
+      IIll1.agent = {
+        "https": this.agent,
+        "http": this.agent
+      };
+    }
+    IIll1.timeout = {
+      "request": 5000,
+      "response": 5000
+    };
+    try {
+      II1lil[IIli1l](IIll1, async (ii1lI, I1ilIl, I11iII) => {
+        try {
+          ii1lI ? this.failnum < 1 ? (this.failed = true, this.failnum++, await ddd(IIll1, ll1il)) : (this.failed = true, this.failnum = 0, ll1il(ii1lI, I1ilIl, I11iII)) : (IlI1ii++, this.failed = false, this.failnum = 0, ll1il(ii1lI, I1ilIl, I11iII));
+        } catch (l1l11l) {
+          ll1iI(IlI1il);
+          console.log(l1l11l);
+          l1lIll(II1lil, IIli1l, II1lii = false);
+        }
+      });
+    } catch (l1iIi) {
+      ll1iI(IlI1il);
+      console.log(l1iIi);
+      l1lIll(II1lil, IIli1l, II1lii = false);
+    }
+  };
+}
+function I1l1II() {}
+module.exports = {
+  "intoRequest": l1lIll
+};
