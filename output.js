@@ -1,4 +1,4 @@
-//Sat Jan 18 2025 10:45:40 GMT+0000 (Coordinated Universal Time)
+//Sat Jan 18 2025 16:32:45 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
 const jdCookie = require("./jdCookie"),
@@ -7,15 +7,14 @@ const jdCookie = require("./jdCookie"),
   {
     H5st
   } = require("./utils/Rebels_H");
-let idList = (process.env.jd_opencard_venderId || "").split(","),
-  minBeans = process.env.jd_opencard_min_beans || "2",
-  taskThreads = process.env.jd_opencard_task_threads || "1",
-  accountThreads = process.env.jd_opencard_account_threads || "1";
-const runInterval = process.env.jd_opencard_account_interval || "1500",
-  isNotify = process.env.jd_opencard_notify === "true",
+let idList = (process.env.jd_opencard_force_venderId || "").split(","),
+  taskThreads = process.env.jd_opencard_force_task_threads || "1",
+  accountThreads = process.env.jd_opencard_force_account_threads || "1";
+const runInterval = process.env.jd_opencard_force_account_interval || "",
+  isNotify = false,
   invalidIdsMap = new Map(),
   maxThreads = 3,
-  cookiesArr = Object.keys(jdCookie).map(lllI1l => jdCookie[lllI1l]).filter(i11iii => i11iii);
+  cookiesArr = Object.keys(jdCookie).map(IIIl1I => jdCookie[IIIl1I]).filter(iil1ii => iil1ii);
 !cookiesArr[0] && ($.msg($.name, "【提示】请先获取Cookie"), process.exit(1));
 !(async () => {
   try {
@@ -23,364 +22,304 @@ const runInterval = process.env.jd_opencard_account_interval || "1500",
       notify.config({
         "title": $.name
       });
-      if (idList.length > 0) idList = [...new Set(idList.filter(lIli1I => lIli1I !== ""))];
+      if (idList.length > 0) idList = [...new Set(idList.filter(IIIl11 => IIIl11 !== ""))];
       if (idList.length <= 0) {
-        console.log("⚠ 请先定义必要的环境变量后再运行脚本！");
-        return;
+        {
+          console.log("⚠ 请先定义必要的环境变量后再运行脚本！");
+          return;
+        }
       }
       $.waitTime = null;
       if (runInterval) {
         try {
-          const lllI11 = parseInt(runInterval);
-          lllI11 >= 0 && ($.waitTime = lllI11);
+          const lil11I = parseInt(runInterval);
+          lil11I >= 0 && ($.waitTime = lil11I);
         } catch {
           console.log("⚠ 自定义运行间隔时长设置错误");
         }
       }
       try {
-        const I1lIli = parseInt(taskThreads);
-        I1lIli > 0 && I1lIli !== 1 && (taskThreads = I1lIli);
+        {
+          const Iliii1 = parseInt(taskThreads);
+          Iliii1 > 0 && Iliii1 !== 1 && (taskThreads = Iliii1);
+        }
       } catch {
         taskThreads = 1;
       }
       taskThreads = Math.min(taskThreads, maxThreads);
       try {
-        const lillII = parseInt(accountThreads);
-        lillII > 0 && lillII !== 1 && (accountThreads = lillII);
+        {
+          const lillIl = parseInt(accountThreads);
+          lillIl > 0 && lillIl !== 1 && (accountThreads = lillIl);
+        }
       } catch {
         accountThreads = 1;
       }
       accountThreads = Math.min(accountThreads, maxThreads);
-      try {
-        {
-          const ii1ilI = parseInt(minBeans);
-          ii1ilI >= 0 && (minBeans = ii1ilI);
-        }
-      } catch {
-        minBeans = 10;
-      }
       $.needRemoveCookieIndex = [];
       $.showPrintId = false;
-      idList.length > 1 && ($.showPrintId = true);
-      await common.concTask(accountThreads, cookiesArr, async (liil1I, i11ii1) => {
-        {
-          await concMain(taskThreads, idList, liil1I, i11ii1, Main);
-          if ($.waitTime) await $.wait($.waitTime);
-        }
+      if (idList.length > 1) {
+        $.showPrintId = true;
+      }
+      await common.concTask(accountThreads, cookiesArr, async (Ill1l, llI1Il) => {
+        await concMain(taskThreads, idList, Ill1l, llI1Il, Main);
+        if ($.waitTime) await $.wait($.waitTime);
       });
       isNotify && notify.getMessage() && (await notify.push());
     }
-  } catch (iiill1) {
-    console.log("❌ 脚本运行遇到了错误\n" + iiill1);
+  } catch (Ill1i) {
+    console.log("❌ 脚本运行遇到了错误\n" + Ill1i);
   }
-})().catch(lIli1i => $.logErr(lIli1i)).finally(() => $.done());
-async function Main(IIIII1, I1lIlI) {
+})().catch(lllI1l => $.logErr(lllI1l)).finally(() => $.done());
+async function Main(i11iii, llI1Ii) {
   const {
-    title: II1iI,
-    UA: llI1II,
-    cookie: lIli1l,
-    message: lillIi
-  } = I1lIlI;
-  if (invalidIdsMap.get(IIIII1)) return;
-  let illIi1 = "",
-    ii1ili = "",
-    liil1i = undefined,
-    lI1lil = false,
-    i1l1iI = false,
-    liil1l = false,
-    lI1lii = "",
-    Iiili1 = [];
-  await i1i11I("getShopOpenCardInfo");
-  if (invalidIdsMap.get(IIIII1)) return;
-  if (typeof liil1i === "boolean") {
+    title: li1i1l,
+    UA: II1i1,
+    cookie: lI1lll,
+    message: iIiII
+  } = llI1Ii;
+  if (invalidIdsMap.get(i11iii)) return;
+  let iil1lI = "",
+    iiiliI = undefined,
+    li1i1I = [];
+  await ii1il1("getShopOpenCardInfo");
+  if (invalidIdsMap.get(i11iii)) return;
+  if (typeof iiiliI === "boolean") {
     {
-      if (liil1i) console.log(II1iI + "已是会员"), lI1lil && (await i1i11I("collectGift"));else {
-        if (invalidIdsMap.get(IIIII1)) return;
-        i1l1iI ? await i1i11I("bindWithVender") : liil1l ? console.log(II1iI + "礼包奖品[" + lI1lii + "]数量低于设置的阈值") : console.log(II1iI + "没有入会礼包");
+      if (iiiliI) console.log(li1i1l + "已是会员");else {
+        if (invalidIdsMap.get(i11iii)) return;
+        await ii1il1("bindWithVender");
       }
     }
   }
-  async function Iil1l1(II11lI, lI1IIi) {
+  async function illIii(II1ii, IIIIII) {
     try {
-      switch (II11lI) {
+      switch (II1ii) {
         case "getShopOpenCardInfo":
-          if (lI1IIi.success === true) {
+          if (IIIIII.success === true) {
             {
-              let I1l11I = lI1IIi.result;
-              Array.isArray(I1l11I) && (I1l11I = I1l11I[0]);
-              liil1i = I1l11I?.["userInfo"]?.["openCardStatus"] === 1;
-              if (I1l11I?.["interestsRuleList"]) {
-                {
-                  illIi1 = I1l11I?.["interestsRuleList"]?.[0]?.["interestsInfo"]?.["activityId"];
-                  ii1ili = I1l11I?.["interestsRuleList"]?.[0]?.["interestsInfo"]?.["activityType"];
-                  liil1i && (lI1lil = true);
-                  for (const IlllIi of I1l11I?.["interestsRuleList"]) {
-                    const {
-                      prizeType: iIIiil
-                    } = IlllIi;
-                    switch (iIIiil) {
-                      case 1:
-                      case 23:
-                        Iiili1.push("优惠券🗑️");
-                        break;
-                      case 4:
-                        Iiili1.push(IlllIi.discountString + "京豆🐶");
-                        i1l1iI = true;
-                        minBeans > 0 && IlllIi.discountString < minBeans && (liil1l = true, i1l1iI = false, lI1lii = IlllIi.discountString + "京豆");
-                        break;
-                      case 6:
-                        Iiili1.push(IlllIi.discountString + "店铺积分🎟️");
-                        break;
-                      case 14:
-                        Iiili1.push(IlllIi.discountString + "红包🧧");
-                        i1l1iI = true;
-                        minBeans > 0 && parseInt(IlllIi.discountString * 100) < minBeans && (liil1l = true, i1l1iI = false, lI1lii = IlllIi.discountString + "红包");
-                        break;
-                      default:
-                        Iiili1.push("" + IlllIi.discountString + IlllIi.prizeName);
-                    }
-                  }
-                }
-              }
+              let lillII = IIIIII.result;
+              Array.isArray(lillII) && (lillII = lillII[0]);
+              iiiliI = lillII?.["userInfo"]?.["openCardStatus"] === 1;
+              iil1lI = lillII?.["interestsRuleList"]?.[0]?.["interestsInfo"]?.["activityId"];
               const {
-                venderCardName: Ilil1l,
-                venderCardLogo: iIIiii
-              } = I1l11I?.["shopMemberCardInfo"];
-              if (I1l11I?.["shopMemberCardInfo"] && !Ilil1l && !iIIiii) {
-                console.log(II1iI + "店铺会员不存在 🚫");
-                invalidIdsMap.set(IIIII1, true);
+                venderCardName: ii1ilI,
+                venderCardLogo: lI1ll1
+              } = lillII?.["shopMemberCardInfo"];
+              if (lillII?.["shopMemberCardInfo"] && !ii1ilI && !lI1ll1) {
+                console.log(li1i1l + "店铺会员不存在 🚫");
+                invalidIdsMap.set(i11iii, true);
                 return;
               }
-              !$["hasPrintInfo_" + IIIII1] && ($["hasPrintInfo_" + IIIII1] = true, console.log("\n商家ID：" + IIIII1), console.log("会员卡：" + (I1l11I?.["shopMemberCardInfo"]?.["venderCardName"] || "未知") + "\n"));
+              !$["hasPrintInfo_" + i11iii] && ($["hasPrintInfo_" + i11iii] = true, console.log("\n商家ID：" + i11iii), console.log("会员卡：" + (lillII?.["shopMemberCardInfo"]?.["venderCardName"] || "未知") + "\n"));
             }
-          } else lI1IIi.message ? console.log("" + II1iI + lI1IIi.message) : console.log(II1iI + "获取店铺会员状态异常 " + JSON.stringify(lI1IIi) + " 🚫");
+          } else IIIIII.message ? console.log("" + li1i1l + IIIIII.message) : console.log(li1i1l + "获取店铺会员状态异常 " + JSON.stringify(IIIIII) + " 🚫");
           break;
         case "bindWithVender":
-          if (lI1IIi.success === true) {
-            if (lI1IIi.message === "加入店铺会员成功") {
-              if (lI1IIi.result && lI1IIi.result?.["giftInfo"]) {
-                Iiili1 = [];
-                for (const lI1IIl of lI1IIi.result?.["giftInfo"]?.["giftList"]) {
-                  const {
-                    prizeType: i1ilI
-                  } = lI1IIl;
-                  switch (i1ilI) {
-                    case 1:
-                    case 23:
-                      Iiili1.push("优惠券🗑️");
-                      lillIi.insert("优惠券🗑️");
-                      break;
-                    case 4:
-                      Iiili1.push(lI1IIl.discountString + "京豆🐶");
-                      lillIi.insert(lI1IIl.discountString + "京豆🐶");
-                      break;
-                    case 6:
-                      Iiili1.push(lI1IIl.discountString + "店铺积分🎟️");
-                      lillIi.insert(lI1IIl.discountString + "店铺积分🎟️");
-                      break;
-                    case 14:
-                      Iiili1.push(lI1IIl.discountString + "红包🧧");
-                      lillIi.insert(lI1IIl.discountString + "红包🧧");
-                      break;
-                    default:
-                      Iiili1.push("" + lI1IIl.discountString + lI1IIl.prizeName);
-                      lillIi.insert("" + lI1IIl.discountString + lI1IIl.prizeName);
+          if (IIIIII.success === true) {
+            if (IIIIII.message === "加入店铺会员成功") {
+              {
+                if (IIIIII.result && IIIIII.result?.["giftInfo"]) {
+                  li1i1I = [];
+                  for (const IlIliI of IIIIII.result?.["giftInfo"]?.["giftList"]) {
+                    const {
+                      prizeType: l1iII1
+                    } = IlIliI;
+                    switch (l1iII1) {
+                      case 1:
+                      case 23:
+                        li1i1I.push("优惠券🗑️");
+                        iIiII.insert("优惠券🗑️");
+                        break;
+                      case 4:
+                        li1i1I.push(IlIliI.discountString + "京豆🐶");
+                        iIiII.insert(IlIliI.discountString + "京豆🐶");
+                        break;
+                      case 6:
+                        li1i1I.push(IlIliI.discountString + "店铺积分🎟️");
+                        iIiII.insert(IlIliI.discountString + "店铺积分🎟️");
+                        break;
+                      case 14:
+                        li1i1I.push(IlIliI.discountString + "红包🧧");
+                        iIiII.insert(IlIliI.discountString + "红包🧧");
+                        break;
+                      default:
+                        li1i1I.push("" + IlIliI.discountString + IlIliI.prizeName);
+                        iIiII.insert("" + IlIliI.discountString + IlIliI.prizeName);
+                    }
                   }
-                }
-                if (Iiili1.length > 0) console.log(II1iI + "加入店铺会员成功，获得：" + Iiili1.join("、"));else {
-                  console.log(II1iI + "加入店铺会员成功");
-                }
-              } else console.log(II1iI + "加入店铺会员成功");
-            } else {
-              if (lI1IIi.message === "活动太火爆，请稍后再试") {
-                console.log("" + II1iI + lI1IIi.message + " 🚫");
-              } else console.log("" + II1iI + lI1IIi.message + " 🚫");
-            }
-          } else lI1IIi.message ? console.log("" + II1iI + lI1IIi.message + " 🚫") : console.log(II1iI + "加入店铺会员失败 🚫");
-          break;
-        case "collectGift":
-          if (lI1IIi.success === true) Iiili1.forEach(iillI => {
-            lillIi.insert(iillI);
-          }), console.log(II1iI + "领取入会礼包成功，获得：" + Iiili1.join("、"));else lI1IIi.message ? console.log("" + II1iI + lI1IIi.message + " 🚫") : console.log(II1iI + "领取入会礼包失败 🚫");
+                  li1i1I.length > 0 ? console.log(li1i1l + "加入店铺会员成功，获得：" + li1i1I.join("、")) : console.log(li1i1l + "加入店铺会员成功");
+                } else console.log(li1i1l + "加入店铺会员成功");
+              }
+            } else IIIIII.message === "活动太火爆，请稍后再试" ? console.log("" + li1i1l + IIIIII.message + " 🚫") : console.log("" + li1i1l + IIIIII.message + " 🚫");
+          } else IIIIII.message ? console.log("" + li1i1l + IIIIII.message + " 🚫") : console.log(li1i1l + "加入店铺会员失败 🚫");
           break;
       }
-    } catch (IIliIi) {
-      console.log("❌ 未能正确处理 " + II11lI + " 请求响应 " + (IIliIi.message || IIliIi));
+    } catch (ii1ill) {
+      console.log("❌ 未能正确处理 " + II1ii + " 请求响应 " + (ii1ill.message || ii1ill));
     }
   }
-  async function i1i11I(IllIiI) {
-    {
-      let I1l111 = "https://api.m.jd.com/client.action",
-        IIii1l = null,
-        I1iIII = null,
-        liiI11 = "POST",
-        ililI1 = {},
-        IIii1i = {};
-      switch (IllIiI) {
-        case "getShopOpenCardInfo":
-          IIii1i = {
-            "appId": "27004",
-            "appid": "shopmember_m_jd_com",
-            "functionId": "getShopOpenCardInfo",
-            "clientVersion": "9.2.0",
-            "client": "H5",
-            "body": {
-              "venderId": IIIII1,
-              "payUpShop": true,
-              "queryVersion": "10.5.2",
-              "appid": "27004",
-              "needSecurity": true,
-              "bizId": "shopmember_m_jd_com",
-              "channel": 406
-            },
-            "version": "4.7",
-            "t": true,
-            "ua": llI1II
-          };
-          ililI1 = await H5st.getH5st(IIii1i);
-          IIii1l = ililI1.paramsData;
-          break;
-        case "bindWithVender":
-          IIii1i = {
-            "appId": "27004",
-            "appid": "shopmember_m_jd_com",
-            "functionId": "bindWithVender",
-            "clientVersion": "9.2.0",
-            "client": "H5",
-            "body": {
-              "venderId": IIIII1,
-              "bindByVerifyCodeFlag": 1,
-              "registerExtend": {},
-              "writeChildFlag": 0,
-              "channel": 406,
-              "appid": "27004",
-              "needSecurity": true,
-              "bizId": "shopmember_m_jd_com"
-            },
-            "version": "4.7",
-            "t": true,
-            "ua": llI1II
-          };
-          illIi1 && (IIii1i.body.activityId = illIi1);
-          ililI1 = await H5st.getH5st(IIii1i);
-          IIii1l = ililI1.paramsData;
-          break;
-        case "collectGift":
-          liiI11 = "GET";
-          I1iIII = {
-            "appid": "jd_shop_member",
-            "functionId": "collectGift",
-            "body": JSON.stringify({
-              "venderId": IIIII1,
-              "activityId": illIi1,
-              "activityType": ii1ili
-            }),
-            "clientVersion": "9.2.0",
-            "client": "H5",
-            "uuid": "88888",
-            "jsonp": "jsonp_" + Date.now() + "_51149"
-          };
-          break;
-      }
-      const i1ili = {
-        "area": "",
-        "screen": "1290*2796",
-        "uuid": "88888"
-      };
-      IIii1l && Object.assign(IIii1l, i1ili);
-      I1iIII && Object.assign(I1iIII, i1ili);
-      const Iiill1 = {
-        "url": I1l111,
-        "method": liiI11,
-        "headers": {
-          "Accept": "*/*",
-          "Accept-Encoding": "gzip, deflate, br",
-          "Accept-Language": "zh-CN,zh-Hans;q=0.9",
-          "Origin": "https://pages.jd.com",
-          "Referer": "https://pages.jd.com/",
-          "Sec-Fetch-Dest": "empty",
-          "Sec-Fetch-Mode": "cors",
-          "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": llI1II,
-          "Cookie": lIli1l
-        },
-        "params": I1iIII,
-        "data": IIii1l,
-        "timeout": 30000
-      };
-      liiI11 === "GET" && (delete Iiill1.data, delete Iiill1.headers["Content-Type"]);
-      const I1iII1 = 1;
-      let lilII1 = 0,
-        iill1 = null,
-        iii1l1 = false;
-      while (lilII1 < I1iII1) {
-        const IIliIl = await common.request(Iiill1);
-        if (!IIliIl.success) {
-          iill1 = "" + II1iI + IllIiI + " 请求失败（" + IIliIl.error + "）🚫";
-          lilII1++;
-          continue;
-        }
-        if (!IIliIl.data) {
-          iill1 = "" + II1iI + IllIiI + " 请求失败（无响应数据）🚫";
-          lilII1++;
-          continue;
-        }
-        await Iil1l1(IllIiI, IIliIl.data);
-        iii1l1 = false;
+  async function ii1il1(llI1II) {
+    let lIli1l = "https://api.m.jd.com/client.action",
+      lillIi = null,
+      illIi1 = null,
+      ii1ili = "POST",
+      liil1i = {},
+      lI1lil = {};
+    switch (llI1II) {
+      case "getShopOpenCardInfo":
+        lI1lil = {
+          "appId": "27004",
+          "appid": "shopmember_m_jd_com",
+          "functionId": "getShopOpenCardInfo",
+          "clientVersion": "9.2.0",
+          "client": "H5",
+          "body": {
+            "venderId": i11iii,
+            "payUpShop": true,
+            "queryVersion": "10.5.2",
+            "appid": "27004",
+            "needSecurity": true,
+            "bizId": "shopmember_m_jd_com",
+            "channel": 406
+          },
+          "version": "4.7",
+          "t": true,
+          "ua": II1i1
+        };
+        liil1i = await H5st.getH5st(lI1lil);
+        lillIi = liil1i.paramsData;
         break;
-      }
-      lilII1 >= I1iII1 && (console.log(iill1), iii1l1 && ($.outFlag = true));
+      case "bindWithVender":
+        lI1lil = {
+          "appId": "27004",
+          "appid": "shopmember_m_jd_com",
+          "functionId": "bindWithVender",
+          "clientVersion": "9.2.0",
+          "client": "H5",
+          "body": {
+            "venderId": i11iii,
+            "bindByVerifyCodeFlag": 1,
+            "registerExtend": {},
+            "writeChildFlag": 0,
+            "channel": 406,
+            "appid": "27004",
+            "needSecurity": true,
+            "bizId": "shopmember_m_jd_com"
+          },
+          "version": "4.7",
+          "t": true,
+          "ua": II1i1
+        };
+        iil1lI && (lI1lil.body.activityId = iil1lI);
+        liil1i = await H5st.getH5st(lI1lil);
+        lillIi = liil1i.paramsData;
+        break;
     }
+    const i1l1iI = {
+      "area": "",
+      "screen": "1290*2796",
+      "uuid": "88888"
+    };
+    lillIi && Object.assign(lillIi, i1l1iI);
+    illIi1 && Object.assign(illIi1, i1l1iI);
+    const liil1l = {
+      "url": lIli1l,
+      "method": ii1ili,
+      "headers": {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+        "Origin": "https://pages.jd.com",
+        "Referer": "https://pages.jd.com/",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": II1i1,
+        "Cookie": lI1lll
+      },
+      "params": illIi1,
+      "data": lillIi,
+      "timeout": 30000
+    };
+    ii1ili === "GET" && (delete liil1l.data, delete liil1l.headers["Content-Type"]);
+    const lI1lii = 1;
+    let Iiili1 = 0,
+      Iil1l1 = null,
+      i1i11I = false;
+    while (Iiili1 < lI1lii) {
+      const iii1ii = await common.request(liil1l);
+      if (!iii1ii.success) {
+        {
+          Iil1l1 = "" + li1i1l + llI1II + " 请求失败（" + iii1ii.error + "）🚫";
+          Iiili1++;
+          continue;
+        }
+      }
+      if (!iii1ii.data) {
+        Iil1l1 = "" + li1i1l + llI1II + " 请求失败（无响应数据）🚫";
+        Iiili1++;
+        continue;
+      }
+      await illIii(llI1II, iii1ii.data);
+      i1i11I = false;
+      break;
+    }
+    Iiili1 >= lI1lii && (console.log(Iil1l1), i1i11I && ($.outFlag = true));
   }
 }
-async function concMain(II11ll = 1, liiI1I, ililII, lI1II1, i1ilII) {
-  if ($.needRemoveCookieIndex.includes(lI1II1)) return;
-  const IllIi1 = liiI1I.map(I1il1l => I1il1l),
-    lilIII = decodeURIComponent(common.getCookieValue(ililII, "pt_pin")),
-    Ii1ilI = "【账号" + lI1II1 + "】" + lilIII + "：" + ($.showPrintId ? venderId + " ➜ " : ""),
-    II11i1 = notify.create(lI1II1, lilIII),
-    iliIil = await common.getLoginStatus(ililII);
-  if (!iliIil && typeof iliIil === "boolean") {
-    console.log(Ii1ilI + "账号无效");
-    II11i1.fix("账号无效");
-    $.needRemoveCookieIndex.push(lI1II1);
-    return;
-  }
-  const iliIii = common.genUA(lilIII),
-    lill1i = {
-      "cookie": ililII,
-      "index": lI1II1,
-      "title": Ii1ilI,
-      "UA": iliIii,
-      "message": II11i1
-    };
-  let il1li = 0;
-  async function iIIill(lI1l1l) {
-    await i1ilII(lI1l1l, lill1i);
-    il1li--;
-    iilii();
-  }
-  async function iilii() {
-    while (il1li < II11ll && IllIi1.length > 0) {
-      const iiliI = IllIi1.shift();
-      il1li++;
-      await iIIill(iiliI);
-    }
-  }
-  const Ill11i = Math.min(IllIi1.length, II11ll),
-    iilil = [];
-  for (let Ill11I = 0; Ill11I < Ill11i; Ill11I++) {
-    const I1il1i = IllIi1.shift();
-    il1li++;
-    iilil.push(iIIill(I1il1i));
-  }
-  await Promise.all(iilil);
-  iilii();
-  await new Promise(IliIIi => {
+async function concMain(II11li = 1, I1l11i, iIIiiI, liiI1i, ililIi) {
+  if ($.needRemoveCookieIndex.includes(liiI1i)) return;
+  const ililIl = I1l11i.map(I1iIIl => I1iIIl),
+    liiI1l = decodeURIComponent(common.getCookieValue(iIIiiI, "pt_pin")),
+    i1l1II = "【账号" + liiI1i + "】" + liiI1l + "：" + ($.showPrintId ? venderId + " ➜ " : ""),
+    i1ill = notify.create(liiI1i, liiI1l),
+    I1l11l = await common.getLoginStatus(iIIiiI);
+  if (!I1l11l && typeof I1l11l === "boolean") {
     {
-      const i1iil = setInterval(() => {
-        il1li === 0 && (clearInterval(i1iil), IliIIi());
-      }, 100);
+      console.log(i1l1II + "账号无效");
+      i1ill.fix("账号无效");
+      $.needRemoveCookieIndex.push(liiI1i);
+      return;
     }
+  }
+  const lilIIi = common.genUA(liiI1l),
+    i1l1Il = {
+      "cookie": iIIiiI,
+      "index": liiI1i,
+      "title": i1l1II,
+      "UA": lilIIi,
+      "message": i1ill
+    };
+  let llIli = 0;
+  async function i1i11l(i1ilI) {
+    await ililIi(i1ilI, i1l1Il);
+    llIli--;
+    i1i11i();
+  }
+  async function i1i11i() {
+    while (llIli < II11li && ililIl.length > 0) {
+      {
+        const i1ilI1 = ililIl.shift();
+        llIli++;
+        await i1i11l(i1ilI1);
+      }
+    }
+  }
+  const II11l1 = Math.min(ililIl.length, II11li),
+    Iil1lI = [];
+  for (let Iil1li = 0; Iil1li < II11l1; Iil1li++) {
+    {
+      const Iiilil = ililIl.shift();
+      llIli++;
+      Iil1lI.push(i1i11l(Iiilil));
+    }
+  }
+  await Promise.all(Iil1lI);
+  i1i11i();
+  await new Promise(lI1III => {
+    const IIliIi = setInterval(() => {
+      llIli === 0 && (clearInterval(IIliIi), lI1III());
+    }, 100);
   });
 }
