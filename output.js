@@ -1,141 +1,177 @@
-//Sun Aug 23 2026 23:15:07 GMT+0000 (Coordinated Universal Time)
+//Sun Aug 23 2026 23:16:07 GMT+0000 (Coordinated Universal Time)
 //Base:<url id="cv1cref6o68qmpt26ol0" type="url" status="parsed" title="GitHub - echo094/decode-js: JS混淆代码的AST分析工具 AST analysis tool for obfuscated JS code" wc="2165">https://github.com/echo094/decode-js</url>
 //Modify:<url id="cv1cref6o68qmpt26olg" type="url" status="parsed" title="GitHub - smallfawn/decode_action: 世界上本来不存在加密，加密的人多了，也便成就了解密" wc="741">https://github.com/smallfawn/decode_action</url>
-$.version = "v1.0.0";
+$.version = "v1.1.0";
 console.log("当前版本:" + $.version + ",依赖版本:" + $.superVersion);
 $.logic = async function () {
   if (!$.superVersion) throw new Error("请更新脚本");
   if (!$.activityId || !$.activityUrl) {
-    {
-      $.expire = true;
-      $.putMsg("activityId|activityUrl不存在");
-      return;
-    }
+    $.expire = true;
+    $.putMsg("activityId|activityUrl不存在");
+    return;
   }
   $.UA = $.ua();
-  let IllI1l1 = await $.isvObfuscator();
-  if (IllI1l1.code !== "0") {
+  let i1iIiIll = await $.isvObfuscator();
+  if (i1iIiIll.code !== "0") {
     {
       $.putMsg("获取Token失败");
       return;
     }
   }
-  $.Token = IllI1l1?.["token"];
-  await $.getSimpleActInfoVo();
-  if ($.expire) return;
-  await $.getMyPing();
-  if (!$.Pin) {
-    return;
-  }
-  await $.accessLog();
-  let Il11llll = await $.api("wxFansInterActionActivity/activityContent", "activityId=" + $.activityId + "&pin=" + $.Pin);
-  if (!Il11llll.result || !Il11llll.data) {
-    $.putMsg(Il11llll.errorMessage);
-    return;
-  }
-  $.actStartTime = Il11llll.data.actInfo.startTime;
-  $.actEndTime = Il11llll.data.actInfo.endTime;
-  $.content.length === 0 ? ["giftLevelOne", "giftLevelTwo", "giftLevelThree"].forEach(lI1I111 => JSON.parse(Il11llll.data.actInfo?.[lI1I111] || "[]").forEach(lI1i1ll => $.content.push(lI1i1ll))) : "";
-  $.shopName = Il11llll.data.actInfo.shopName;
-  let IIIll1i1 = Il11llll.data.actInfo.taskIds,
-    IlIIliIi = Il11llll.data.actorInfo;
-  if (IlIIliIi.prizeOneStatus && IlIIliIi.prizeTwoStatus && IlIIliIi.prizeThreeStatus) {
-    $.index === 7 ? $.putMsg("全部完成") : $.putMsg("全部完成");
-    return;
-  }
-  let iiI11lII = IlIIliIi.uuid,
-    IiiIliI = {
-      "1": "task1Sign",
-      "2": "task2BrowGoods",
-      "3": "task3AddCart",
-      "4": "task4Share",
-      "5": "task5Remind",
-      "6": "task6GetCoupon",
-      "7": "task7MeetPlaceVo"
-    };
-  $.skuList = [];
-  for (let IilI1li of IIIll1i1.split(",")) {
-    let iiilli11 = Il11llll.data[IiiIliI[IilI1li]];
-    if (iiilli11.finishedCount >= iiilli11.upLimit) continue;
-    for (let iII1ll1l = 1; iII1ll1l <= iiilli11.upLimit - iiilli11.finishedCount; iII1ll1l++) {
-      try {
-        if (IiiIliI[IilI1li] === "task1Sign") {
-          await $.api("wxFansInterActionActivity/doSign", "activityId=" + $.activityId + "&uuid=" + iiI11lII);
-        }
-        if (IiiIliI[IilI1li] === "task2BrowGoods" && iiilli11.taskGoodList?.["length"] > 0) {
-          let lIi1i1lI = iiilli11.taskGoodList,
-            IiiIlIIi = lIi1i1lI[iII1ll1l].skuId;
-          await $.api("wxFansInterActionActivity/doBrowGoodsTask", "activityId=" + $.activityId + "&uuid=" + iiI11lII + "&skuId=" + IiiIlIIi);
-        }
-        if (IiiIliI[IilI1li] === "task3AddCart" && iiilli11.taskGoodList?.["length"] > 0) {
-          let l1111II1 = iiilli11.taskGoodList,
-            Ill1I1i = l1111II1[iII1ll1l].skuId;
-          $.skuList.push(Ill1I1i);
-          await $.api("wxFansInterActionActivity/doAddGoodsTask", "activityId=" + $.activityId + "&uuid=" + iiI11lII + "&skuId=" + Ill1I1i);
-        }
-        IiiIliI[IilI1li] === "task4Share" && (await $.api("wxFansInterActionActivity/doShareTask", "activityId=" + $.activityId + "&uuid=" + iiI11lII));
-        if (IiiIliI[IilI1li] === "task5Remind") {
-          await $.api("wxFansInterActionActivity/doRemindTask", "activityId=" + $.activityId + "&uuid=" + iiI11lII);
-        }
-        if (IiiIliI[IilI1li] === "task6GetCoupon" && iiilli11.taskCouponInfoList?.["length"] > 0) {
-          {
-            let Iil11IIi = iiilli11.taskCouponInfoList,
-              iiI11lll = Iil11IIi[0].couponInfo.couponId;
-            await $.api("wxFansInterActionActivity/doGetCouponTask", "activityId=" + $.activityId + "&uuid=" + iiI11lII + "&couponId=" + iiI11lll);
-          }
-        }
-        IiiIliI[IilI1li] === "task7MeetPlaceVo" && (await $.api("wxFansInterActionActivity/doMeetingTask", "activityId=" + $.activityId + "&uuid=" + iiI11lII));
-      } catch (lllIIlI1) {
-        $.log(lllIIlI1);
-      } finally {
-        await $.wait(1500, 2000);
+  $.Token = i1iIiIll?.["token"];
+  if ($.domain.includes("jinggeng")) {
+    let ll1I1iI = await $.api("front/setMixNick", "strTMMixNick=" + $.Token + "&userId=" + $.userId + "&source=01");
+    if (!ll1I1iI.succ) {
+      {
+        $.putMsg("setMixNick失败");
+        return;
       }
     }
-  }
-  let iIiiiIii = IlIIliIi.follow;
-  if (!iIiiiIii) {
-    await $.api("wxFansInterActionActivity/followShop", "activityId=" + $.activityId + "&uuid=" + iiI11lII);
-  }
-  Il11llll = await $.api("wxFansInterActionActivity/activityContent", "activityId=" + $.activityId + "&pin=" + $.Pin);
-  IlIIliIi = Il11llll?.["data"]["actorInfo"] || IlIIliIi;
-  let li1IIll = IlIIliIi.energyValue;
-  li1IIll += IlIIliIi.fansLoveValue;
-  let I1l1ilI = IlIIliIi.prizeOneStatus,
-    iiIi1i1I = IlIIliIi.prizeTwoStatus,
-    Il1II1II = IlIIliIi.prizeThreeStatus,
-    ill1il1l = Il11llll.data.actConfig,
-    lil1iiII = ill1il1l.prizeScoreOne,
-    lI1llliI = ill1il1l.prizeScoreTwo,
-    II1111il = ill1il1l.prizeScoreThree,
-    Iil11Iil = "";
-  !I1l1ilI && li1IIll >= lil1iiII && (Iil11Iil = "01");
-  !iiIi1i1I && li1IIll >= lI1llliI && (Iil11Iil = "02");
-  !Il1II1II && li1IIll >= II1111il && (Iil11Iil = "03");
-  if (Iil11Iil) {
-    {
-      let IIiIIIli = await $.api("wxFansInterActionActivity/startDraw", "activityId=" + $.activityId + "&uuid=" + iiI11lII + "&drawType=" + Iil11Iil);
-      $.log(JSON.stringify(IIiIIIli));
-      if (IIiIIIli.result) {
-        let lili1iIl = IIiIIIli.data.drawOk ? IIiIIIli.data.name : IIiIIIli.data.errorMessage || "空气";
-        $.putMsg(lili1iIl);
-        IIiIIIli.data.needWriteAddress === "y" && ($.addressId = IIiIIIli.data.addressId, $.prizeName = IIiIIIli.data.name, await $.saveAddress());
-      } else $.putMsg("" + IIiIIIli.errorMessage), await $.wxStop(IIiIIIli.errorMessage);
+    let i11i1lli = await $.api("ql/front/showFavoriteShop", "id=" + $.activityId + "&user_id=" + $.userId + "&from=kouling&sid=" + $.randomString() + "&un_area=" + $.randomPattern("xx_xxxx_xxxx_xxxxx"));
+    const llIliilI = cheerio.load(cheerio.load(i11i1lli).html());
+    $.shopId = llIliilI("#shop_sid", "body").attr("value");
+    $.venderId = llIliilI("#vender_id", "body").attr("value");
+    $.shopName = llIliilI("#shop_title", "body").attr("value");
+    $.activityType = llIliilI("#actType", "body").attr("value");
+    let lllll = llIliilI("#error", "body").attr("value");
+    if (lllll.includes("您已参加过此活动")) {
+      $.putMsg("您已参加过此活动");
+      return;
     }
-  } else $.putMsg("积分" + li1IIll + "，兑1:" + I1l1ilI + "，兑2:" + iiIi1i1I + "，兑3:" + Il1II1II);
-  $?.["skuList"]?.["length"] > 0 ? await $.carRmv($.skuList) : "";
+    if (lllll) {
+      $.putMsg(lllll);
+      await $.wxStop(lllll);
+    }
+    let lIi1III1 = await $.api("ql/front/postFavoriteShop", "user_id=" + $.userId + "&act_id=" + $.activityId);
+    if (lIi1III1.succ) {
+      let Ill1liII = JSON.parse(lIi1III1.msg);
+      if (Ill1liII.isSendSucc && Ill1liII.drawAwardDto) {
+        let ilIi1ll = Ill1liII.drawAwardDto,
+          iIl1Il1i = $.getAwardText(Ill1liII.drawAwardDto);
+        $.putMsg(iIl1Il1i);
+        ilIi1ll.awardType === "JD_GOODS" && ($.addressId = Ill1liII.actLogId, $.prizeName = iIl1Il1i, await $.saveAddress());
+      } else $.putMsg(lIi1III1.msg);
+    } else await $.wxStop(lIi1III1.msg), $.putMsg(lIi1III1.msg.includes("您未中奖") ? "空气" : lIi1III1.msg), lIi1III1.msg.includes("积分不足") && $.limit++;
+    if ($.index === $.masterNum) {
+      $.putMsg("全部完成");
+    }
+    await $.wait(1000, 2000);
+    return;
+  }
+  if (["10053", "10069"].includes($.activityType)) {
+    await $.login();
+    let i1IiliII;
+    if ($.activityType == "10053") await $.api("/api/task/followGoods/followGoods", {
+      "skuId": ""
+    }), i1IiliII = await $.api("/api/my/prize/list", {
+      "current": 1,
+      "size": 1000
+    });else {
+      {
+        let i1I11IIl = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "Connection": "keep-alive",
+            "user-agent": $.UA,
+            "Referer": $.activityUrl,
+            "token": $.Token
+          },
+          II1ii1i1 = "https://lzkj-isv.isvjcloud.com/" + $.urlPrefix + "/api/task/lkFollowShop/saveFollowInfo?actType=10069";
+        i1IiliII = await $.get(II1ii1i1, i1I11IIl);
+      }
+    }
+    if (i1IiliII.resp_code != 0 || JSON.stringify(i1IiliII).includes("该用户已经参加过活动")) {
+      $.putMsg(i1IiliII.resp_msg || i1IiliII.data);
+      return;
+    }
+    if (i1IiliII.resp_code == 0 && i1IiliII.data) for (let iIiillII of i1IiliII.data) {
+      iIiillII.prizeName && iIiillII.dayTime == $.now("yyyy-MM-dd") && $.putMsg(iIiillII.prizeName);
+    } else $.putMsg(i1IiliII?.["data"] || "空气");
+    $.index === $.masterNum && $.putMsg("全部完成");
+  } else {
+    await $.getSimpleActInfoVo();
+    if ($.expire) return;
+    await $.getMyPing();
+    if (!$.Pin) return;
+    await $.accessLog();
+    let lll1l1 = await $.api("wxShopFollowActivity/activityContentOnly", "activityId=" + $.activityId + "&pin=" + $.Pin);
+    if (!lll1l1.result || !lll1l1.data) {
+      $.putMsg(lll1l1.errorMessage);
+      return;
+    }
+    $.content = lll1l1.data.drawContentVOs || [];
+    $.strStartTime = $.match(/(\d+-\d+-\d+ \d+:\d+) 至/, lll1l1.data.rule);
+    $.strEndTime = $.match(/至 (\d+-\d+-\d+ \d+:\d+)/, lll1l1.data.rule);
+    $.hasFollow = lll1l1.data.hasFollow || false;
+    $.needFollow = lll1l1.data.needFollow || false;
+    $.canDrawTimes = lll1l1.data?.["canDrawTimes"] || 0;
+    $.drawConsume = lll1l1.data?.["drawConsume"] || 0;
+    $.actStartTime = $.parseDate($.strStartTime + ":00");
+    $.actEndTime = $.parseDate($.strEndTime + ":00");
+    $.rule = lll1l1.data.rule;
+    let lI11li1 = lll1l1.data.drawContentVOs.filter(i1l1I1li => [6, 7, 9, 13, 14, 15, 16].includes(i1l1I1li.type) && i1l1I1li.prizeNum >= i1l1I1li.hasSendPrizeNum);
+    if (lI11li1.length === 0) {
+      $.putMsg("垃圾或领完");
+      $.expire = true;
+      return;
+    }
+    if ($.actStartTime > $.timestamp()) {
+      {
+        $.putMsg("活动未开始");
+        this.expire = true;
+        return;
+      }
+    }
+    if ($.timestamp() > $.actEndTime) {
+      {
+        $.putMsg("活动已结束");
+        this.expire = true;
+        return;
+      }
+    }
+    await $.unfollow();
+    let lIilI11i = await $.api("wxShopFollowActivity/follow", "activityId=" + $.activityId + "&pin=" + $.Pin);
+    if (!lIilI11i.result) {
+      $.putMsg(lIilI11i.errorMessage);
+      await $.wxStop(lIilI11i.errorMessage);
+      return;
+    }
+    await $.api("wxShopFollowActivity/follow", "activityId=" + $.activityId + "&pin=" + $.Pin);
+    for (let ili1lIiI = 0; ili1lIiI < 3 && $.canDrawTimes > 0; ili1lIiI++) {
+      let IIilii1I = await $.api("wxShopFollowActivity/getPrize", "activityId=" + $.activityId + "&pin=" + $.Pin);
+      if (IIilii1I.result) {
+        {
+          $.canDrawTimes = IIilii1I.data.canDrawTimes;
+          if (IIilii1I.data.drawOk) {
+            $.putMsg(IIilii1I.data.name);
+            IIilii1I.data.drawInfoType === 7 && IIilii1I.data.needWriteAddress === "y" && IIilii1I.data.addressId && ($.addressId = IIilii1I.data.addressId, $.prizeName = IIilii1I.data.name, await $.saveAddress());
+            break;
+          } else $.putMsg("空气");
+        }
+      } else {
+        $.putMsg("" + IIilii1I.errorMessage);
+        if (IIilii1I.errorMessage.includes("先关注,再抽奖")) continue;
+        await $.wxStop(IIilii1I.errorMessage);
+        break;
+      }
+    }
+    $.index === $.masterNum && $.putMsg("全部完成");
+  }
 };
 $.after = async function () {
   try {
-    for (let llill1II of $.content || []) {
-      {
-        if (llill1II.name.includes("谢谢") || llill1II.name.includes("再来")) {
-          continue;
-        }
-        $.msg.push("    " + llill1II.name + (llill1II?.["type"] === 8 ? "专享价" : ""));
+    for (let Iilill1i of $.content || []) {
+      if (["10053", "10069"].includes($.activityType)) {
+        $.msg.push("    " + Iilill1i.prizeName + " 剩余" + Iilill1i.leftNum + "份");
+        continue;
+      } else {
+        if (Iilill1i.name.includes("谢谢") || Iilill1i.name.includes("再来")) continue;
       }
+      $.msg.push("    " + Iilill1i.name + " " + (Iilill1i?.["type"] === 8 ? "专享价" : ""));
     }
-  } catch (I1lIiliI) {
-    console.log(I1lIiliI);
+  } catch (il1iIill) {
+    console.log(il1iIill);
   }
-  $.msg.push("export M_WX_FANS_DRAW_URL=\"" + $.activityUrl + "\"");
+  console.log($.rule);
+  $.msg.push("export M_WX_FOLLOW_DRAW_URL=\"" + $.activityUrl + "\"");
 };
