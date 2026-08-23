@@ -1,71 +1,63 @@
-//Sun Aug 23 2026 16:02:13 GMT+0000 (Coordinated Universal Time)
+//Sun Aug 23 2026 16:05:49 GMT+0000 (Coordinated Universal Time)
 //Base:<url id="cv1cref6o68qmpt26ol0" type="url" status="parsed" title="GitHub - echo094/decode-js: JS混淆代码的AST分析工具 AST analysis tool for obfuscated JS code" wc="2165">https://github.com/echo094/decode-js</url>
 //Modify:<url id="cv1cref6o68qmpt26olg" type="url" status="parsed" title="GitHub - smallfawn/decode_action: 世界上本来不存在加密，加密的人多了，也便成就了解密" wc="741">https://github.com/smallfawn/decode_action</url>
-$.uid = $.getQueryString($.activityUrl, "qwer");
-let headers = {
-  "Accept": "*/*",
-  "Connection": "keep-alive",
-  "Referer": "" + $.activityUrl,
-  "Accept-Encoding": "gzip, deflate, br",
-  "Host": "wq.jd.com",
-  "User-Agent": "jdapp;iPhone;10.1.6;13.5;;network/wifi;model/iPhone11,6;addressid/4596882376;appBuild/167841;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-  "Accept-Language": "zh-cn"
-};
 $.version = "v1.0.0";
 $.logic = async function () {
-  if (!$.superVersion) {
-    throw new Error("请更新脚本");
-  }
-  if ($.expire) {
+  if (!$.superVersion) throw new Error("请更新脚本");
+  const illI1iiI = "https://api.m.jd.com/client.action";
+  let iliiI11I = "functionId=jm_marketing_maininfo&body=%7B%22shopId%22%3A%2212765935%22%2C%22venderId%22%3A%2213577546%22%2C%22projectId%22%3A358620%7D&t=1697155128683&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
+  const iI1l1iII = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "" + $.cookie,
+    "Connection": "keep-alive",
+    "Accept": "*/*",
+    "Referer": "https://service.vapp.jd.com/3CCA5269C1CA14CA76B9955243C60F78/1/page-frame.html",
+    "Host": "api.m.jd.com",
+    "User-Agent": "JD4iPhone/168684 (iPhone; iOS 16.2; Scale/3.00)",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "zh-CN,zh-Hans;q=0.9"
+  };
+  let lI1Ilii1 = await $.request(illI1iiI, iI1l1iII, iliiI11I);
+  if (lI1Ilii1.data.code !== 200) {
+    console.log("请手动确认活动");
     return;
   }
-  await login();
-  let llli1i = "https://wq.jd.com/active/getfunction?_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=jsonpCBKA&g_ty=ls",
+  let liilllil = lI1Ilii1.data.data.project.viewTaskVOS;
+  if ($.timestamp() > lI1Ilii1.data.data.project.endTime) {
     {
-      data: IillIIll
-    } = await $.request(llli1i, headers);
-  headers.Cookie = "promotejs=" + IillIIll.match(/TOKEN":"(.*?)"/)[1] + eval(IillIIll.match(/a = (.*?);/)[1]) + ";" + $.cookie;
-  let l1IIl1ii = $.activityUrl.includes("videofangrowth") ? JSON.parse((await $.request("https://wq.jd.com/activet2/looktreasure/draw_fans?_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=openLibao&g_ty=ls", headers))?.["data"]["match"](/openLibao\((.*)\n/)[1]) : $.activityUrl.includes("fansactiveall") ? JSON.parse((await $.request("https://wq.jd.com/activet2/looktreasure/draw_activetemporary?sceneval=2&backendId=" + JSON.parse((await $.request("https://wq.jd.com/activet2/looktreasure/query_tempactivconfig?uuid=" + $.uid + "&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=query_tempactivconfig&g_ty=ls", headers))?.["data"]?.["match"](/query_tempactivconfig\((.*)\n/)?.[1])?.["backEnd"] + "&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=draw_activetemporary&g_ty=ls", headers))?.["data"]["match"](/draw_activetemporary\((.*)\n/)?.[1]) : $.activityUrl.includes("fansactivecopy") ? JSON.parse((await $.request("https://wq.jd.com/activet2/looktreasure/query_copytemporary?sceneval=2&backendId=&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=query_copytemporary&g_ty=ls", headers))?.["data"]["match"](/query_copytemporary\((.*)\n/)?.[1]) : false;
-  if (!l1IIl1ii) {
-    $.putMsg("不支持，请去检查");
-    $.expire = true;
-    return;
-  }
-  $.log(JSON.stringify(l1IIl1ii));
-  l1IIl1ii.ret === 0 ? l1IIl1ii.msg ? $.putMsg(l1IIl1ii.msg) : $.putMsg((Array.isArray(l1IIl1ii.prize) ? l1IIl1ii.prize[0].sPrizeDesc + "," + l1IIl1ii.prize[0].sPrizeName : l1IIl1ii.prize.sPrizeDesc + "," + l1IIl1ii.prize.sPrizeName) || "空气") : l1IIl1ii.ret === 1005 ? $.putMsg("已领过") : $.putMsg(JSON.stringify(l1IIl1ii));
-};
-async function login() {
-  let liIlIl = await got.get("https://wq.jd.com/mlogin/mpage/Login?rurl=" + encodeURIComponent($.activityUrl), {
-    "headers": {
-      "Host": "wq.jd.com",
-      "Accept": "*/*",
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1 Mobile/15E148 Safari/604.1",
-      "Cookie": $.cookie,
-      "Accept-Language": "zh-cn",
-      "Referer": "https://wqs.jd.com/",
-      "Accept-Encoding": "gzip, deflate, br",
-      "X-Requested-with": "XMLHttpRequest"
-    },
-    "followRedirect": false
-  });
-  if (liIlIl.headers["set-cookie"]) for (let i111IIii of liIlIl.headers["set-cookie"]) {
-    $.cookie = "" + $.cookie + i111IIii.split(";")[0] + ";";
-  }
-  if (liIlIl.headers["Set-Cookie"]) {
-    for (let IiII1Iil of liIlIl.headers["Set-Cookie"]) {
-      $.cookie = "" + $.cookie + IiII1Iil.split(";")[0] + ";";
+      $.expire = true;
+      $.putMsg("活动已结束，通知作者删除");
+      return;
     }
   }
-}
-async function videofangrowth() {
-  return JSON.parse((await $.request("https://" + $.domain + "/activet2/looktreasure/draw_fans?_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=openLibao&g_ty=ls", headers))?.["data"]["match"](/openLibao\((.*)\n/)[1]);
-}
-async function fansactiveall() {
-  return JSON.parse((await $.request("https://" + $.domain + "/activet2/looktreasure/draw_activetemporary?sceneval=2&backendId=" + JSON.parse((await $.request("https://" + $.domain + "/activet2/looktreasure/query_tempactivconfig?uuid=" + $.uid + "&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=query_tempactivconfig&g_ty=ls", headers))?.["data"]?.["match"](/query_tempactivconfig\((.*)\n/)?.[1])?.["backEnd"] + "&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=draw_activetemporary&g_ty=ls", headers))?.["data"]["match"](/draw_activetemporary\((.*)\n/)?.[1]);
-}
-async function fansactivecopy() {
-  return JSON.parse((await $.request("https://" + $.domain + "/activet2/looktreasure/draw_copytemporary?sceneval=2&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=query_copytemporary&g_ty=ls", headers))?.["data"]["match"](/query_copytemporary\((.*)\n/)?.[1]);
-}
-$.after = async function () {
-  $.msg.push("\nexport M_FANS_RED_PACKET_URL=\"" + $.activityUrl + "\"");
+  $.log("关注店铺");
+  iliiI11I = "functionId=followShop&body=%7B%22shopId%22%3A%2212765935%22%2C%22follow%22%3Atrue%2C%22type%22%3A0%2C%22sourceRpc%22%3A%22shop_app_myfollows_shop%22%2C%22refer%22%3A%22https%3A%2F%2Fwq.jd.com%2Fpages%2Findex%2Findex%22%7D&t=1697113701851&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
+  let ilIl11I = await $.request(illI1iiI, iI1l1iII, iliiI11I);
+  for (let lI1I1iII of liilllil.filter(lI11Illl => [2, 4].includes(lI11Illl.type) && lI11Illl.finishCount === 0)) {
+    $.log(lI1I1iII.name);
+    iliiI11I = "functionId=jm_task_process&body=%7B%22shopId%22%3A%2212765935%22%2C%22venderId%22%3A%2213577546%22%2C%22projectId%22%3A358620%2C%22taskId%22%3A" + lI1I1iII.id + "%2C%22token%22%3A%22" + lI1I1iII.token + "%22%2C%22opType%22%3A2%2C%22referSource%22%3A10084096558196%7D&t=1697113686255&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
+    let l11Ili = await $.request(illI1iiI, iI1l1iII, iliiI11I);
+  }
+  let llli1lil = liilllil.filter(iIi1Il => iIi1Il.name.includes("抽奖"))[0].token,
+    ililIIi = liilllil.filter(lI11Iii => lI11Iii.name.includes("抽奖"))[0].id;
+  while (true) {
+    try {
+      iliiI11I = "functionId=jm_task_process&body=%7B%22shopId%22%3A%2212765935%22%2C%22venderId%22%3A%2213577546%22%2C%22projectId%22%3A358620%2C%22taskId%22%3A" + ililIIi + "%2C%22token%22%3A%22" + llli1lil + "%22%2C%22opType%22%3A2%2C%22referSource%22%3A10084096558196%7D&t=1697113686255&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
+      let i111IIli = await $.request(illI1iiI, iI1l1iII, iliiI11I);
+      if (i111IIli?.["data"]?.["msg"]?.["includes"]("不足")) break;
+      let iIIlIIIl = i111IIli?.["data"]?.["data"]?.["awardVO"];
+      if (!i111IIli.data.success || !iIIlIIIl) {
+        i111IIli.data.msg && $.log(i111IIli.data.msg);
+        continue;
+      }
+      debugger;
+      let IIIil11i = iIIlIIIl.discount + iIIlIIIl.name;
+      $.putMsg(IIIil11i);
+      if (iIIlIIIl.type === 1) {
+        break;
+      }
+    } catch (IiIliII) {
+      $.log(IiIliII);
+    }
+  }
 };
