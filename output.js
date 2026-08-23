@@ -1,94 +1,75 @@
-//Sun Aug 23 2026 23:01:27 GMT+0000 (Coordinated Universal Time)
+//Sun Aug 23 2026 23:03:15 GMT+0000 (Coordinated Universal Time)
 //Base:<url id="cv1cref6o68qmpt26ol0" type="url" status="parsed" title="GitHub - echo094/decode-js: JS混淆代码的AST分析工具 AST analysis tool for obfuscated JS code" wc="2165">https://github.com/echo094/decode-js</url>
 //Modify:<url id="cv1cref6o68qmpt26olg" type="url" status="parsed" title="GitHub - smallfawn/decode_action: 世界上本来不存在加密，加密的人多了，也便成就了解密" wc="741">https://github.com/smallfawn/decode_action</url>
-let forceOpen = parseInt(process.env.M_OPEN_CARD_FORCE || "1");
+let actInfoSignMap = new Map(),
+  signInfoSignMap = new Map(),
+  ruleInfoSignMap = new Map();
 $.version = "v1.0.0";
+console.log("当前版本:" + $.version + ",依赖版本:" + $.superVersion);
 $.config = async function () {
-  if ($.openCardArgv.startsWith("http")) {
-    $.shopId = this.getQueryString($.openCardArgv, "shopId") || "";
-    $.venderId = this.getQueryString($.openCardArgv, "venderId") || "";
-    let {
-      shopId: _0x424fe6,
-      venderId: _0x453989,
-      shopName: _0x31d97d
-    } = await $.getShopBaseInfo();
-    $.shopId = _0x424fe6;
-    $.venderId = _0x453989;
-    $.shopName = _0x31d97d;
+  if ($.gygShopArgv.startsWith("http")) {
+    {
+      $.shopId = this.getQueryString($.gygShopArgv, "shopId") || "";
+      $.venderId = this.getQueryString($.gygShopArgv, "venderId") || "";
+      let {
+        shopId: iIIIii1i,
+        venderId: i1li1IiI,
+        shopName: liIllI1I
+      } = await $.getShopBaseInfo();
+      $.shopId = iIIIii1i;
+      $.venderId = i1li1IiI;
+      $.shopName = liIllI1I;
+    }
   } else {
-    let _0xd3dfe8 = $.openCardArgv.split("_");
-    $.shopId = _0xd3dfe8?.[0];
-    $.venderId = _0xd3dfe8?.[1];
+    let Ii1il1i1 = $.gygShopArgv.split("_");
+    $.shopId = Ii1il1i1?.[0];
+    $.venderId = Ii1il1i1?.[1];
   }
-  $.activityUrl = "https://shopmember.m.jd.com/shopcard/?shopId=" + $.shopId + "&venderId=" + $.venderId;
+  $.activityUrl = "https://shop.m.jd.com/?shopId=" + $.shopId + "&venderId=" + $.venderId;
 };
 $.logic = async function () {
   if (!$.superVersion) throw new Error("请更新脚本");
   if (!$.shopId || !$.venderId) {
-    $.log("无效的参数" + $.openCardArgv);
+    $.log("无效的参数" + $.gygShopArgv);
     $.expire = true;
     return;
   }
-  $.UA = $.ua();
-  if (!$.venderCardName) {
-    let _0x546229 = await $.openCardInfo();
-    if (_0x546229?.["busiCode"] !== "0") {
-      $.log(JSON.stringify(_0x546229));
-      return;
-    }
-    $.venderCardName = _0x546229.result?.["shopMemberCardInfo"]?.["venderCardName"];
-    let _0x3a6d08 = _0x546229.result?.["interestsRuleList"] || [],
-      _0x1b797c = _0x3a6d08.filter(_0x50911e => _0x50911e?.["prizeType"] === 4 || _0x50911e?.["prizeType"] === 14 || _0x50911e?.["prizeName"] === "京豆" || _0x50911e?.["prizeName"] === "红包")?.[0] || "";
-    $.beanCount = 0;
-    $.beanCount = _0x1b797c?.["discountString"] * 1 || 0;
-    $.activityId = _0x1b797c?.["interestsInfo"]?.["activityId"] || "";
-  }
-  let _0x36bb84 = await $.openCard($.venderId, 208, $.activityId);
-  if (_0x36bb84.code === 0) {
-    {
-      let _0x5db71a = _0x36bb84.result?.["giftInfo"]?.["giftList"] || [];
-      if (_0x5db71a.length == 0 && _0x36bb84.message.includes("加入店铺会员成功")) {
-        {
-          $.log("没水停止了");
-          $.expire = true;
-          return;
-        }
-      }
-      for (let _0x3a2ea8 of _0x5db71a || []) {
-        $.putMsg("" + _0x3a2ea8.discountString + _0x3a2ea8.prizeName);
-      }
-    }
-  }
+  let IiIi1l = await sign();
+  if (IiIi1l?.["code"] === "0") {
+    if (IiIi1l?.["result"]?.["isSign"] === 3) {
+      $.putMsg("已刮过奖");
+    } else IiIi1l?.["result"]?.["isSign"] === 1 ? IiIi1l?.["result"]["isWin"] ? $.putMsg(IiIi1l.result?.["signReward"]?.["name"]) : $.putMsg("未中奖") : $.log(JSON.stringify(IiIi1l));
+  } else $.putMsg(JSON.stringify(IiIi1l));
 };
-async function getOpenCardGift() {
-  let _0x9078f5 = "jsonp_" + $.timestamp() + "_" + $.random(10000, 99999),
-    _0x3da23c = "https://api.m.jd.com/client.action?appid=jd_shop_member&functionId=getShopOpenCardInfo&body=%7B%22venderId%22%3A%22" + $.venderId + "%22%2C%22channel%22%3A406%7D&client=H5&clientVersion=9.2.0&uuid=&jsonp=" + _0x9078f5,
-    _0x490a20 = {
-      "Accept": "*/*",
-      "Connection": "close",
-      "Referer": "https://shopmember.m.jd.com/shopcard/?",
+async function drawShopGiftWx() {
+  let IIiiI1iI = "https://api.m.jd.com/client.action?g_ty=ls&g_tk=518274330",
+    IliIliii = "functionId=drawShopGift&body={\"follow\":0,\"shopId\":\"" + $.shopId + "\",\"activityId\":\"" + $.activityId + "\",\"sourceRpc\":\"shop_app_home_window\",\"venderId\":\"" + $.venderId + "\"}&client=apple&clientVersion=10.0.4&osVersion=13.7&appid=wh5&loginType=2&loginWQBiz=interact",
+    l1iii1i = {
+      "Accept": "application/json, text/plain, */*",
       "Accept-Encoding": "gzip, deflate, br",
+      "Content-Type": "application/x-www-form-urlencoded",
       "Host": "api.m.jd.com",
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+      "Connection": "keep-alive",
       "Accept-Language": "zh-cn",
       "Cookie": $.cookie
     };
-  return await $.get(_0x3da23c, _0x490a20);
+  l1iii1i["User-Agent"] = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.4(0x1800042c) NetType/4G Language/zh_CN miniProgram";
+  let {
+    data: IiiII1Il
+  } = await $.request(IIiiI1iI, l1iii1i, IliIliii);
+  return IiiII1Il;
 }
-let fansFuseMemberDetailMap = new Map();
-async function getFansFuseMemberDetail() {
-  let _0x3c564f = {
-      "venderId": $.venderId,
-      "shopId": $.shopId,
-      "channel": 102,
-      "queryVersion": "10.5.2"
+async function sign() {
+  let IiI1IiIl = {
+      "vendorId": $.venderId,
+      "sourceRpc": "shop_app_sign_home"
     },
-    _0x484ec5 = fansFuseMemberDetailMap.get($.venderId);
-  if (!_0x484ec5) {
-    _0x484ec5 = await $.sign("getFansFuseMemberDetail", _0x3c564f);
-    fansFuseMemberDetailMap.set($.venderId, _0x484ec5);
+    iIililll = signInfoSignMap.get($.venderId);
+  if (!iIililll) {
+    iIililll = await $.sign("sign", IiI1IiIl);
+    signInfoSignMap.set($.venderId, iIililll);
   }
-  let _0x490d18 = {
+  let i1lliiii = {
     "J-E-H": "",
     "Connection": "keep-alive",
     "Accept-Encoding": "gzip, deflate, br",
@@ -100,28 +81,24 @@ async function getFansFuseMemberDetail() {
     "Accept": "*/*",
     "User-Agent": "JD4iPhone/167841 (iPhone; iOS; Scale/3.00)"
   };
-  _0x490d18.Cookie = $.cookie;
-  let _0x357580 = "https://api.m.jd.com/client.action?functionId=" + _0x484ec5.fn,
+  i1lliiii.Cookie = $.cookie;
+  let iiIliliI = "https://api.m.jd.com/client.action?functionId=" + iIililll.fn,
     {
-      status: _0x58ab8c,
-      data: _0x2d16e6
-    } = await $.request(_0x357580, _0x490d18, _0x484ec5.sign);
-  return _0x2d16e6;
+      status: IiIil1i,
+      data: iillIIl
+    } = await $.request(iiIliliI, i1lliiii, iIililll.sign);
+  return iillIIl;
 }
-let collectGiftMap = new Map();
-async function collectGift() {
-  let _0x4cdeee = {
-      "venderId": $.venderId,
-      "shopId": $.shopId,
-      "activityType": $.activityType,
-      "activityId": $.activityId
+async function getSignActivityRule() {
+  let lII1l11l = {
+      "vendorId": $.venderId
     },
-    _0x47c21e = collectGiftMap.get($.venderId);
-  if (!_0x47c21e) {
-    _0x47c21e = await $.sign("collectGift", _0x4cdeee);
-    collectGiftMap.set($.venderId, _0x47c21e);
+    iIliiilI = ruleInfoSignMap.get($.venderId);
+  if (!iIliiilI) {
+    iIliiilI = await $.sign("signActivityRule", lII1l11l);
+    ruleInfoSignMap.set($.venderId, iIliiilI);
   }
-  let _0xed9537 = {
+  let i1il1iiI = {
     "J-E-H": "",
     "Connection": "keep-alive",
     "Accept-Encoding": "gzip, deflate, br",
@@ -133,18 +110,60 @@ async function collectGift() {
     "Accept": "*/*",
     "User-Agent": "JD4iPhone/167841 (iPhone; iOS; Scale/3.00)"
   };
-  _0xed9537.Cookie = $.cookie;
-  let _0x2f92da = "https://api.m.jd.com/client.action?functionId=" + _0x47c21e.fn,
+  i1il1iiI.Cookie = $.cookie;
+  let lI11l11I = "https://api.m.jd.com/client.action?functionId=" + iIliiilI.fn,
     {
-      status: _0x2af450,
-      data: _0x4f1411
-    } = await $.request(_0x2f92da, _0xed9537, _0x47c21e.sign);
-  return _0x4f1411;
+      status: i1IliilI,
+      data: IIliIiII
+    } = await $.request(lI11l11I, i1il1iiI, iIliiilI.sign);
+  return IIliIiII;
+}
+async function getShopHomeActivityInfo() {
+  let IIi11lli = {
+      "shopId": $.shopId,
+      "source": "app-shop",
+      "latWs": "0",
+      "lngWs": "0",
+      "displayWidth": "1098.000000",
+      "sourceRpc": "shop_app_home_home",
+      "lng": "0",
+      "lat": "0",
+      "venderId": $.venderId
+    },
+    I1lliiI = actInfoSignMap.get($.shopId + "_" + $.venderId);
+  !I1lliiI && (I1lliiI = await $.sign("getShopHomeActivityInfo", IIi11lli), actInfoSignMap.set($.shopId + "_" + $.venderId, I1lliiI));
+  let iIlII1ll = {
+    "J-E-H": "",
+    "Connection": "keep-alive",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Host": "api.m.jd.com",
+    "Referer": "",
+    "J-E-C": "",
+    "Accept-Language": "zh-Hans-CN;q=1, en-CN;q=0.9",
+    "Accept": "*/*",
+    "User-Agent": "JD4iPhone/167841 (iPhone; iOS; Scale/3.00)"
+  };
+  iIlII1ll.Cookie = $.cookie;
+  let IiiIii1 = "https://api.m.jd.com/client.action?functionId=" + I1lliiI.fn,
+    {
+      status: i1IIii1I,
+      data: llIii111
+    } = await $.request(IiiIii1, iIlII1ll, I1lliiI.sign);
+  return llIii111;
+}
+async function getShopName() {
+  let li11l1Ii = "https://wq.jd.com/mshop/QueryShopMemberInfoJson?venderId=" + $.venderId,
+    II1IIili = {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+      "Referer": "https://h5.m.jd.com/",
+      "Cookie": $.cookie,
+      "User-Agent": "Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40"
+    };
+  return await $.get(li11l1Ii, II1IIili);
 }
 $.after = async function () {
-  $.venderCardName && $.msg.push("【" + $.venderCardName + "】入会送（" + $.beanCount + "京豆）");
-  $.msg.push("export M_OPEN_CARD_ARGV=\"" + $.openCardArgv + "\"");
+  $.msg.push("export M_GYG_SHOP_ARGV=\"" + $.gygShopArgv + "\"");
 };
-$.run({
-  "whitelist": ["1-100"]
-}).catch(_0x33696a => $.log(_0x33696a));
