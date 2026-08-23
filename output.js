@@ -1,63 +1,130 @@
-//Sun Aug 23 2026 16:05:49 GMT+0000 (Coordinated Universal Time)
+//Sun Aug 23 2026 16:18:05 GMT+0000 (Coordinated Universal Time)
 //Base:<url id="cv1cref6o68qmpt26ol0" type="url" status="parsed" title="GitHub - echo094/decode-js: JS混淆代码的AST分析工具 AST analysis tool for obfuscated JS code" wc="2165">https://github.com/echo094/decode-js</url>
 //Modify:<url id="cv1cref6o68qmpt26olg" type="url" status="parsed" title="GitHub - smallfawn/decode_action: 世界上本来不存在加密，加密的人多了，也便成就了解密" wc="741">https://github.com/smallfawn/decode_action</url>
 $.version = "v1.0.0";
 $.logic = async function () {
-  if (!$.superVersion) throw new Error("请更新脚本");
-  const illI1iiI = "https://api.m.jd.com/client.action";
-  let iliiI11I = "functionId=jm_marketing_maininfo&body=%7B%22shopId%22%3A%2212765935%22%2C%22venderId%22%3A%2213577546%22%2C%22projectId%22%3A358620%7D&t=1697155128683&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
-  const iI1l1iII = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Cookie": "" + $.cookie,
-    "Connection": "keep-alive",
-    "Accept": "*/*",
-    "Referer": "https://service.vapp.jd.com/3CCA5269C1CA14CA76B9955243C60F78/1/page-frame.html",
-    "Host": "api.m.jd.com",
-    "User-Agent": "JD4iPhone/168684 (iPhone; iOS 16.2; Scale/3.00)",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Accept-Language": "zh-CN,zh-Hans;q=0.9"
-  };
-  let lI1Ilii1 = await $.request(illI1iiI, iI1l1iII, iliiI11I);
-  if (lI1Ilii1.data.code !== 200) {
-    console.log("请手动确认活动");
-    return;
+  if (!$.superVersion) {
+    throw new Error("请更新脚本");
   }
-  let liilllil = lI1Ilii1.data.data.project.viewTaskVOS;
-  if ($.timestamp() > lI1Ilii1.data.data.project.endTime) {
+  let l1I1llli = $?.["favShopArgv"]?.["split"]("_");
+  $.shopId = l1I1llli?.[0];
+  $.venderId = l1I1llli?.[1];
+  if (!$.shopId || !$.venderId) {
     {
+      $.log("无效的参数" + $.favShopArgv);
       $.expire = true;
-      $.putMsg("活动已结束，通知作者删除");
       return;
     }
   }
-  $.log("关注店铺");
-  iliiI11I = "functionId=followShop&body=%7B%22shopId%22%3A%2212765935%22%2C%22follow%22%3Atrue%2C%22type%22%3A0%2C%22sourceRpc%22%3A%22shop_app_myfollows_shop%22%2C%22refer%22%3A%22https%3A%2F%2Fwq.jd.com%2Fpages%2Findex%2Findex%22%7D&t=1697113701851&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
-  let ilIl11I = await $.request(illI1iiI, iI1l1iII, iliiI11I);
-  for (let lI1I1iII of liilllil.filter(lI11Illl => [2, 4].includes(lI11Illl.type) && lI11Illl.finishCount === 0)) {
-    $.log(lI1I1iII.name);
-    iliiI11I = "functionId=jm_task_process&body=%7B%22shopId%22%3A%2212765935%22%2C%22venderId%22%3A%2213577546%22%2C%22projectId%22%3A358620%2C%22taskId%22%3A" + lI1I1iII.id + "%2C%22token%22%3A%22" + lI1I1iII.token + "%22%2C%22opType%22%3A2%2C%22referSource%22%3A10084096558196%7D&t=1697113686255&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
-    let l11Ili = await $.request(illI1iiI, iI1l1iII, iliiI11I);
+  await $.wait(1000, 3000);
+  let iil11l1l = await QueryShopActive();
+  if (iil11l1l?.["iRet"] !== "0") {
+    $.putMsg(iil11l1l?.["errMsg"]);
+    return;
   }
-  let llli1lil = liilllil.filter(iIi1Il => iIi1Il.name.includes("抽奖"))[0].token,
-    ililIIi = liilllil.filter(lI11Iii => lI11Iii.name.includes("抽奖"))[0].id;
-  while (true) {
-    try {
-      iliiI11I = "functionId=jm_task_process&body=%7B%22shopId%22%3A%2212765935%22%2C%22venderId%22%3A%2213577546%22%2C%22projectId%22%3A358620%2C%22taskId%22%3A" + ililIIi + "%2C%22token%22%3A%22" + llli1lil + "%22%2C%22opType%22%3A2%2C%22referSource%22%3A10084096558196%7D&t=1697113686255&eid=eidIde5c812183sbwkZEkK6%2FTCezMUyGy3rdu8JGRgfcBCAt40UcQi3vl8KucZUDXY9IDHh3YGNPj%2BnDWMIUs19jQaju%2FLkzCeIe030URPX5cdlBMNhF&appid=shop_view&clientVersion=10.0.0&client=wh5&uuid=70492ed7d2e0f3c29baa49e8f4a45a3812d922a3";
-      let i111IIli = await $.request(illI1iiI, iI1l1iII, iliiI11I);
-      if (i111IIli?.["data"]?.["msg"]?.["includes"]("不足")) break;
-      let iIIlIIIl = i111IIli?.["data"]?.["data"]?.["awardVO"];
-      if (!i111IIli.data.success || !iIIlIIIl) {
-        i111IIli.data.msg && $.log(i111IIli.data.msg);
-        continue;
-      }
-      debugger;
-      let IIIil11i = iIIlIIIl.discount + iIIlIIIl.name;
-      $.putMsg(IIIil11i);
-      if (iIIlIIIl.type === 1) {
-        break;
-      }
-    } catch (IiIliII) {
-      $.log(IiIliII);
+  if (iil11l1l?.["fan"] === 1) {
+    {
+      $.putMsg("已经收藏过啦");
+      await DelShopFav();
+      return;
     }
   }
+  let iIIiii = iil11l1l?.["gift"]?.["filter"](IllIlI11 => IllIlI11.jingBean?.["sendCount"] > 0)?.[0];
+  if (!iIIiii) {
+    $.putMsg("没有奖励");
+    return;
+  }
+  $.activeId = iIIiii.activeId || "";
+  $.giftId = iIIiii.giftId || "";
+  $.beanCnt = iIIiii?.["jingBean"]?.["sendCount"] || 0;
+  $.log($.activeId, $.giftId, $.beanCnt);
+  if (!$.activeId) {
+    {
+      $.putMsg("没找到活动信息");
+      $.expire = true;
+      return;
+    }
+  }
+  let IlI111I = await addfavgiftshop();
+  IlI111I.iRet === "0" && $.putMsg("收藏成功");
+  let Ill111II = await GiveShopGift();
+  $.log(JSON.stringify(Ill111II));
+  if (Ill111II.retCode === 0) {
+    $.putMsg($.beanCnt + "豆");
+  } else Ill111II.retCode === 201 ? $.putMsg("已领取过") : $.putMsg("领取失败");
+  await DelShopFav();
+};
+async function GiveShopGift() {
+  let IIi11lIi = "https://wq.jd.com/fav_snsgift/GiveShopGift?venderId=" + $.venderId + "&activeId=" + $.activeId + "&giftId=" + $.giftId + "&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=jsonpCBKQ&g_tk=1292830178&g_ty=ls",
+    liiil11I = {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+      "Connection": "keep-alive",
+      "Cookie": $.cookie,
+      "Host": "wq.jd.com",
+      "Referer": "https://shop.m.jd.com/?shopId=" + $.shopId,
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+    },
+    {
+      status: iillIlll,
+      data: lIlli1li
+    } = await $.request(IIi11lIi, liiil11I);
+  return $.handler(lIlli1li);
+}
+async function DelShopFav() {
+  let IIIi1l = "https://wq.jd.com/fav/shop/DelShopFav?shopId=" + $.shopId + "&venderId=" + $.venderId + "&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=jsonpCBKM&g_tk=1292830178&g_ty=ls",
+    i1il1Ill = {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+      "Connection": "keep-alive",
+      "Cookie": $.cookie,
+      "Host": "wq.jd.com",
+      "Referer": "https://shop.m.jd.com/?shopId=" + $.shopId,
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+    },
+    {
+      data: Ii1I11li
+    } = await $.request(IIIi1l, i1il1Ill);
+  return $.handler(Ii1I11li);
+}
+async function addfavgiftshop() {
+  let l1iI11Ii = "https://wq.jd.com/fav_snsgift/addfavgiftshop?venderId=" + $.venderId + "&shareToken=&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=jsonpCBKO&g_tk=1292830178&g_ty=ls",
+    iI11II1I = {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+      "Connection": "keep-alive",
+      "Cookie": $.cookie,
+      "Host": "wq.jd.com",
+      "Referer": "https://shop.m.jd.com/?shopId=" + $.shopId,
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+    },
+    {
+      status: IiIlil1l,
+      data: l1liiI1i
+    } = await $.request(l1iI11Ii, iI11II1I);
+  return $.handler(l1liiI1i);
+}
+async function QueryShopActive() {
+  let i11IlllI = {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+      "Connection": "keep-alive",
+      "Cookie": $.cookie,
+      "Host": "wq.jd.com",
+      "Referer": "https://shop.m.jd.com/?shopId=" + $.shopId,
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+    },
+    lIlIlilI = "https://wq.jd.com/fav_snsgift/QueryShopActive?venderId=" + $.venderId + "&_=" + $.timestamp() + "&sceneval=2&g_login_type=1&callback=jsonpCBKC&g_tk=1292830178&g_ty=ls",
+    {
+      status: il1lI111,
+      data: liiil1li
+    } = await $.request(lIlIlilI, i11IlllI);
+  return $.handler(liiil1li);
+}
+$.after = async function () {
+  $.msg.push("export M_FAV_SHOP_ARGV=\"" + $.favShopArgv + "\"");
 };
