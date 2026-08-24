@@ -1,77 +1,60 @@
-//Mon Aug 24 2026 11:42:30 GMT+0000 (Coordinated Universal Time)
+//Mon Aug 24 2026 11:44:15 GMT+0000 (Coordinated Universal Time)
 //Base:<url id="cv1cref6o68qmpt26ol0" type="url" status="parsed" title="GitHub - echo094/decode-js: JS混淆代码的AST分析工具 AST analysis tool for obfuscated JS code" wc="2165">https://github.com/echo094/decode-js</url>
 //Modify:<url id="cv1cref6o68qmpt26olg" type="url" status="parsed" title="GitHub - smallfawn/decode_action: 世界上本来不存在加密，加密的人多了，也便成就了解密" wc="741">https://github.com/smallfawn/decode_action</url>
 $.version = "v1.0.0";
-$.logic = async function () {
-  if (!$.superVersion) throw new Error("请更新脚本");
-  if (!$.activityId || !$.activityUrl) {
-    $.expire = true;
-    $.putMsg("activityId|activityUrl不存在");
-    return;
+$.logic = async () => {
+  if (!$.superVersion) {
+    throw new Error("请更新脚本");
   }
-  $.UA = $.ua();
-  let i1lllIll = await $.isvObfuscator();
-  if (i1lllIll.code !== "0") {
+  if (!$.activityId || !$.activityUrl) {
     {
-      $.putMsg("获取Token失败");
+      $.log("活动id不存在");
+      $.expire = true;
       return;
     }
   }
-  if (["10044"].includes($.activityType)) {
-    await $.login();
-    let il1Il1I1 = await $.api("api/task/votePolitely/activity", {});
-    if (il1Il1I1.data.voteSelectList.length == 0) {
-      {
-        let iIIill = [il1Il1I1.data.rule[0].text];
-        il1Il1I1.data.votingForm == 2 && iIIill.push(il1Il1I1.data.rule[1].text);
-        let l1lilII1 = await $.api("api/task/votePolitely/savePkResult", {
-          "selectVote": iIIill
-        });
-        $.log("投票结果", l1lilII1);
-        if (l1lilII1.resp_code == 0) {}
-      }
-    }
-    for (let IliIil1 = 0; IliIil1 < 2; IliIil1++) {
-      let Il111I1I = await $.api("/api/prize/draw", {
-        "actId": $.activityId
-      });
-      if (Il111I1I.resp_code != 0) {
-        {
-          if (Il111I1I.resp_msg.includes("没有抽奖次数")) break;
-          $.putMsg("" + Il111I1I.resp_msg);
-          await $.wxStop(Il111I1I.resp_msg);
-          return;
-        }
-      } else $.putMsg("" + (Il111I1I.data?.["prizeName"] || "空气")), Il111I1I.data?.["prizeType"] === 3 && ($.prizeName = Il111I1I.data?.["prizeName"], $.addressId = Il111I1I.data?.["addressId"], await $.saveAddress());
-    }
+  $.UA = $.ua();
+  let _0x133cda = await $.isvObfuscator();
+  if (_0x133cda.code !== "0") {
+    $.putMsg("获取Token失败");
     return;
   }
-  $.Token = i1lllIll?.["token"];
+  $.Token = _0x133cda?.["token"];
   await $.getSimpleActInfoVo();
   if ($.expire) return;
   await $.getMyPing();
-  if (!$.Pin) {
-    return;
-  }
+  if (!$.Pin) return;
   await $.accessLog();
-  let ilI1iIIl = await $.api("faxian/wxVote/activityContent", {
-    "activityId": $.activityId,
-    "pin": $.Pin
-  });
-  if (!ilI1iIIl.result || !ilI1iIIl.data) {
+  if ($.prizeList.length == 0) {
     {
-      $.putMsg(ilI1iIIl.errorMessage || "活动已结束");
+      let _0x10932c = await $.api("mc/zeroTrial/wx/getActivityContent?activityId=" + $.activityId + "&pin=" + $.Pin, "");
+      $.prizeList = _0x10932c.data.zeroTrialGoodsOutVOList || [];
+      $.actStartTime = _0x10932c.data.startTime;
+      $.actEndTime = _0x10932c.data.endTime;
+    }
+  }
+  if ($.prizeList.length > 0) {
+    {
+      let _0x23066a = $.prizeList[$.random(0, $.prizeList.length - 1)],
+        _0x1a6a59 = await $.api("mc/zeroTrial/wx/applyTrial", "activityId=" + $.activityId + "&pin=" + $.Pin + "&goodsId=" + _0x23066a.goodsId + "&venderId=" + $.venderId + "&nickName=" + encodeURIComponent($.nickname));
+      if (_0x1a6a59.result) $.putMsg(_0x23066a.name), $.addressId = _0x1a6a59.data, $.prizeName = _0x23066a.name, await $.saveAddress();else {
+        $.putMsg(_0x1a6a59.errorMessage);
+        (_0x1a6a59.errorMessage.includes("未开始") || _0x1a6a59.errorMessage.includes("结束")) && ($.expire = true);
+        return;
+      }
+    }
+  } else {
+    {
+      $.putMsg("未获取到试用品");
+      $.expire = true;
       return;
     }
   }
 };
-$.after = async function () {
-  try {
-    for (let IIiiIilI of $.prizeList || []) {
-      $.msg.push("    " + IIiiIilI.prizeName + " 剩" + IIiiIilI.leftNum + "份");
-    }
-  } catch (IIl1iIi) {
-    console.log(IIl1iIi);
+$.after = async () => {
+  for (let _0xc79239 of $.prizeList) {
+    $.msg.push(_0xc79239.name + "，" + _0xc79239.price + "元，共" + _0xc79239.sendNum + "份");
   }
-  $.msg.push("export M_WX_VOTE_DRAW_URL=" + $.activityUrl);
+  $.msg.push("export M_WX_ZEROTRIAL_URL=\"" + $.activityUrl + "\"");
 };
+$.run().catch(_0x11b562 => $.log(_0x11b562));
